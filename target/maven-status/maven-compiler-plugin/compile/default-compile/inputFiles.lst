@@ -1,0 +1,13 @@
+/Users/viktor/Downloads/library/src/main/java/eu/deltasource/training/library/controller/SaleController.java
+/Users/viktor/Downloads/library/src/main/java/eu/deltasource/training/library/service/AuthorService.java
+/Users/viktor/Downloads/library/src/main/java/eu/deltasource/training/library/repository/SalesRepository.java
+/Users/viktor/Downloads/library/src/main/java/eu/deltasource/training/library/repository/BooksRepository.java
+/Users/viktor/Downloads/library/src/main/java/eu/deltasource/training/library/service/SaleService.java
+/Users/viktor/Downloads/library/src/main/java/eu/deltasource/training/library/controller/AuthorController.java
+/Users/viktor/Downloads/library/src/main/java/eu/deltasource/training/library/controller/BookController.java
+/Users/viktor/Downloads/library/src/main/java/eu/deltasource/training/library/model/Author.java
+/Users/viktor/Downloads/library/src/main/java/eu/deltasource/training/library/model/Book.java
+/Users/viktor/Downloads/library/src/main/java/eu/deltasource/training/library/repository/AuthorsRepository.java
+/Users/viktor/Downloads/library/src/main/java/eu/deltasource/training/library/service/BookService.java
+/Users/viktor/Downloads/library/src/main/java/eu/deltasource/training/library/model/Sale.java
+/Users/viktor/Downloads/library/src/main/java/eu/deltasource/training/library/LibraryApplication.java
