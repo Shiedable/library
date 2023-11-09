@@ -1,5 +1,6 @@
 package eu.deltasource.training.library.repository;
 
+import eu.deltasource.training.library.exceptions.*;
 import eu.deltasource.training.library.model.Book;
 import org.springframework.stereotype.Repository;
 
@@ -29,13 +30,15 @@ public class BooksRepository {
         books.remove(id);
     }
 
-    public void updateBookById(int id, int author_id, String title, LocalDate publication_date, String isbn, double price) {
+    public void updateBookById(int id, int authorId, String title, LocalDate publicationDate, String isbn, double price)
+            throws NegativeIdException, EmptyIsbnException, NegativeBookPriceException, EmptyBookTitleException,
+            NullDateException {
         Book book = books.get(id);
-        book.setAuthor_id(author_id);
+        book.setAuthorId(authorId);
         book.setIsbn(isbn);
         book.setPrice(price);
         book.setTitle(title);
-        book.setPublication_date(publication_date);
+        book.setPublicationDate(publicationDate);
     }
 
     public List<Book> getAllBooks() {

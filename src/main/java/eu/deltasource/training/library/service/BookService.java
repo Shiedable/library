@@ -1,5 +1,6 @@
 package eu.deltasource.training.library.service;
 
+import eu.deltasource.training.library.exceptions.*;
 import eu.deltasource.training.library.model.Book;
 import eu.deltasource.training.library.repository.BooksRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,25 +14,49 @@ public class BookService {
 
     @Autowired
     private BooksRepository books;
+    @Autowired
+    private AuthorService authorService;
 
-    public void addBook(int author_id, String title, String publication_date, String isbn, double price) {
-        Book book = new Book(author_id, title, LocalDate.parse(publication_date), isbn, price);
+
+    public void addBook(int authorId, String title, String publicationDate, String isbn, double price)
+            throws NegativeIdException, EmptyIsbnException, EmptyBookTitleException, NegativeBookPriceException,
+            NullDateException, IdNotFoundException {
+        validateAuthorID(authorId);
+        Book book = new Book(authorId, title, LocalDate.parse(publicationDate), isbn, price);
         books.addBook(book);
     }
 
-    public void deleteBookById(int id) {
+    public void deleteBookById(int id) throws IdNotFoundException {
+        validateBookID(id);
         books.deleteBookById(id);
     }
 
-    public void updateBookById(int id, int author_id, String title, String publication_date, String isbn, double price) {
-        books.updateBookById(id, author_id, title, LocalDate.parse(publication_date), isbn, price);
+    public void updateBookById(int id, int authorId, String title, String publication_date, String isbn, double price)
+            throws NegativeIdException, EmptyIsbnException, EmptyBookTitleException, NegativeBookPriceException,
+            NullDateException, IdNotFoundException {
+        validateBookID(id);
+        validateAuthorID(authorId);
+        books.updateBookById(id, authorId, title, LocalDate.parse(publication_date), isbn, price);
     }
 
-    public Book getBookById(int id) {
+    public Book getBookById(int id) throws IdNotFoundException {
+        validateBookID(id);
         return books.getBookById(id);
     }
 
     public List<Book> getAllBooks() {
         return books.getAllBooks();
+    }
+
+    private void validateAuthorID(int id) throws IdNotFoundException {
+        if (id >= authorService.getAllAuthors().size()) {
+            throw new IdNotFoundException("Author with such ID does not exist");
+        }
+    }
+
+    private void validateBookID(int id) throws IdNotFoundException {
+        if (id >= books.getAllBooks().size()) {
+            throw new IdNotFoundException("Book with such ID does not exist");
+        }
     }
 }

@@ -1,5 +1,9 @@
 package eu.deltasource.training.library.service;
 
+import eu.deltasource.training.library.exceptions.IdNotFoundException;
+import eu.deltasource.training.library.exceptions.NegativeIdException;
+import eu.deltasource.training.library.exceptions.NegativeSaleQuantityException;
+import eu.deltasource.training.library.exceptions.NullDateException;
 import eu.deltasource.training.library.model.Sale;
 import eu.deltasource.training.library.repository.SalesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,25 +17,46 @@ public class SaleService {
 
     @Autowired
     private SalesRepository sales;
+    @Autowired
+    private BookService bookService;
 
-    public void addSale(int book_id, String sale_date, int quantity) {
-        Sale sale = new Sale(book_id, LocalDate.parse(sale_date), quantity);
+    public void addSale(int bookId, String saleDate, int quantity)
+            throws NegativeIdException, NegativeSaleQuantityException, NullDateException, IdNotFoundException {
+        validateBookID(bookId);
+        Sale sale = new Sale(bookId, LocalDate.parse(saleDate), quantity);
         sales.addSale(sale);
     }
 
-    public void deleteSaleById(int id) {
+    public void deleteSaleById(int id) throws IdNotFoundException {
+        validateSaleID(id);
         sales.deleteSaleById(id);
     }
 
-    public void updateSaleById(int id, int book_id, String sale_date, int quantity) {
-        sales.updateSaleById(id, book_id, LocalDate.parse(sale_date), quantity);
+    public void updateSaleById(int id, int bookId, String saleDate, int quantity)
+            throws NegativeIdException, NegativeSaleQuantityException, NullDateException, IdNotFoundException {
+        validateSaleID(id);
+        validateBookID(bookId);
+        sales.updateSaleById(id, bookId, LocalDate.parse(saleDate), quantity);
     }
 
-    public Sale getSaleById(int id) {
+    public Sale getSaleById(int id) throws IdNotFoundException {
+        validateSaleID(id);
         return sales.getSaleById(id);
     }
 
     public List<Sale> getAllSales() {
         return sales.getAllSales();
+    }
+
+    private void validateSaleID(int id) throws IdNotFoundException {
+        if (id >= sales.getAllSales().size()) {
+            throw new IdNotFoundException("Sale with such ID does not exist");
+        }
+    }
+
+    private void validateBookID(int id) throws IdNotFoundException {
+        if (id >= bookService.getAllBooks().size()) {
+            throw new IdNotFoundException("Book with such ID does not exist");
+        }
     }
 }

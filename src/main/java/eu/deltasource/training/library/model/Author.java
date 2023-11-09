@@ -1,49 +1,53 @@
 package eu.deltasource.training.library.model;
 
-import org.springframework.stereotype.Component;
+import eu.deltasource.training.library.exceptions.EmptyAuthorNameException;
+import eu.deltasource.training.library.exceptions.NullDateException;
 
 import java.time.LocalDate;
+import static org.springframework.util.StringUtils.hasLength;
 
-@Component
 public class Author {
 
-    private String first_name;
-    private String last_name;
-    private LocalDate birthdate;
+    private String firstName;
+    private String lastName;
+    private LocalDate birthDate;
 
     public Author() {
     }
 
-    public Author(String first_name, String last_name, LocalDate birthday) {
-        this.first_name = first_name;
-        this.last_name = last_name;
-        this.birthdate = birthday;
+    public Author(String firstName, String lastName, LocalDate birthDate)
+            throws EmptyAuthorNameException, NullDateException {
+        setFirstName(firstName);
+        setLastName(lastName);
+        setBirthday(birthDate);
     }
 
-    public String getName() {
-        return first_name + " " + last_name;
-    }
-
-    public void setFirst_name(String first_name) {
-        if(first_name != null) {
-            this.first_name = first_name;
+    public void setFirstName(String firstName) throws EmptyAuthorNameException {
+        if (hasLength(firstName)) {
+            this.firstName = firstName;
+        } else {
+            throw new EmptyAuthorNameException("Empty first name!");
         }
     }
 
-    public void setLast_name(String last_name) {
-        if(last_name != null) {
-            this.last_name = last_name;
+    public void setLastName(String lastName) throws EmptyAuthorNameException {
+        if (hasLength(lastName)) {
+            this.lastName = lastName;
+        } else {
+            throw new EmptyAuthorNameException("Empty last name!");
         }
     }
 
-    public void setBirthday(LocalDate birthdate) {
-        if(birthdate != null) {
-            this.birthdate = birthdate;
+    public void setBirthday(LocalDate birthDate) throws NullDateException {
+        if (birthDate != null) {
+            this.birthDate = birthDate;
+        } else {
+            throw new NullDateException("Null birthdate");
         }
     }
 
     @Override
     public String toString() {
-        return first_name + last_name + ", birthday=" + birthdate;
+        return firstName + lastName + ", birthday=" + birthDate;
     }
 }

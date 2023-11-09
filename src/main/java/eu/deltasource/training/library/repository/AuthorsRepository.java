@@ -1,5 +1,7 @@
 package eu.deltasource.training.library.repository;
 
+import eu.deltasource.training.library.exceptions.EmptyAuthorNameException;
+import eu.deltasource.training.library.exceptions.NullDateException;
 import eu.deltasource.training.library.model.Author;
 import org.springframework.stereotype.Repository;
 
@@ -25,11 +27,12 @@ public class AuthorsRepository {
         return authors.get(id);
     }
 
-    public void updateAuthorById(int id, String first_name, String last_name, LocalDate birthdate) {
+    public void updateAuthorById(int id, String firstName, String lastName, LocalDate birthDate)
+            throws EmptyAuthorNameException, NullDateException {
         Author author = authors.get(id);
-        author.setFirst_name(first_name);
-        author.setLast_name(last_name);
-        author.setBirthday(birthdate);
+        author.setFirstName(firstName);
+        author.setLastName(lastName);
+        author.setBirthday(birthDate);
     }
 
     public void deleteAuthorById(int id) {

@@ -1,45 +1,53 @@
 package eu.deltasource.training.library.model;
 
-import org.springframework.stereotype.Component;
+import eu.deltasource.training.library.exceptions.NegativeIdException;
+import eu.deltasource.training.library.exceptions.NegativeSaleQuantityException;
+import eu.deltasource.training.library.exceptions.NullDateException;
 
 import java.time.LocalDate;
 
-@Component
 public class Sale {
 
-    private int book_id;
-    private LocalDate sale_date;
+    private int bookId;
+    private LocalDate saleDate;
     private int quantity;
 
     public Sale() {
     }
 
-    public Sale(int book_id, LocalDate sale_date, int quantity) {
-        this.book_id = book_id;
-        this.sale_date = sale_date;
-        this.quantity = quantity;
+    public Sale(int bookId, LocalDate saleDate, int quantity)
+            throws NegativeIdException, NullDateException, NegativeSaleQuantityException {
+        setBookId(bookId);
+        setSaleDate(saleDate);
+        setQuantity(quantity);
     }
 
-    public void setBook_id(int book_id) {
-        if (book_id > 0) {
-            this.book_id = book_id;
+    public void setBookId(int bookId) throws NegativeIdException {
+        if (bookId > 0) {
+            this.bookId = bookId;
+        } else {
+            throw new NegativeIdException("Book ID cannot be negative");
         }
     }
 
-    public void setSale_date(LocalDate sale_date) {
-        if (sale_date != null) {
-            this.sale_date = sale_date;
+    public void setSaleDate(LocalDate saleDate) throws NullDateException {
+        if (saleDate != null) {
+            this.saleDate = saleDate;
+        } else {
+            throw new NullDateException("Sale Date is null");
         }
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(int quantity) throws NegativeSaleQuantityException {
         if (quantity > 0) {
             this.quantity = quantity;
+        } else {
+            throw new NegativeSaleQuantityException("Sale quantity cannot be negative");
         }
     }
 
     @Override
     public String toString() {
-        return book_id + " - " + sale_date + ", x" + quantity;
+        return bookId + " - " + saleDate + ", x" + quantity;
     }
 }

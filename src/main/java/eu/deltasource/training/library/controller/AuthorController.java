@@ -1,11 +1,16 @@
 package eu.deltasource.training.library.controller;
 
+import eu.deltasource.training.library.exceptions.EmptyAuthorNameException;
+import eu.deltasource.training.library.exceptions.IdNotFoundException;
+import eu.deltasource.training.library.exceptions.NullDateException;
 import eu.deltasource.training.library.model.Author;
 import eu.deltasource.training.library.service.AuthorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -19,35 +24,53 @@ public class AuthorController {
         this.authorService = authorService;
     }
 
-    @RequestMapping(value = "/author/add", method = RequestMethod.POST)
-    public ResponseEntity addAuthor(@RequestParam("fname") String fname,
-                                    @RequestParam("lname") String lname,
-                                    @RequestParam("bd") String bd) {
-        authorService.addAuthor(fname, lname, bd);
+    @PostMapping(value = "/author/add")
+    public ResponseEntity<String> addAuthor(@RequestParam("firstName") String firstName,
+                                    @RequestParam("lastName") String lastName,
+                                    @RequestParam("birthDate") String birthDate) {
+        try {
+            authorService.addAuthor(firstName, lastName, birthDate);
+        } catch (EmptyAuthorNameException | NullDateException exception) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, exception.getMessage(), exception);
+        }
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/author/delete/{id}")
-    @ResponseBody
-    public ResponseEntity deleteAuthorById(@PathVariable int id) {
-        authorService.deleteAuthorById(id);
+    public ResponseEntity<String> deleteAuthorById(@PathVariable int id) {
+        try {
+            authorService.deleteAuthorById(id);
+        } catch (IdNotFoundException exception) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, exception.getMessage(), exception);
+        }
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/author/update/{id}")
-    @ResponseBody
-    public ResponseEntity updateAuthorById(@PathVariable int id,
-                                  @RequestParam(name = "fname", required = false) String fname,
-                                  @RequestParam(name = "lname", required = false) String lname,
-                                  @RequestParam(name = "bd", required = false) String bd) {
-        authorService.updateAuthorById(id, fname, lname, bd);
+    public ResponseEntity<String> updateAuthorById(@PathVariable int id,
+                                  @RequestParam(name = "firstName", required = false) String firstName,
+                                  @RequestParam(name = "lastName", required = false) String lastName,
+                                  @RequestParam(name = "birthDate", required = false) String birthDate) {
+        try {
+            authorService.updateAuthorById(id, firstName, lastName, birthDate);
+        } catch (EmptyAuthorNameException | NullDateException exception) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, exception.getMessage(), exception);
+        } catch (IdNotFoundException exception) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, exception.getMessage(), exception);
+        }
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/author/get/{id}")
     @ResponseBody
     public Author getAuthorById(@PathVariable int id) {
-        return authorService.getAuthorById(id);
+        Author author;
+        try {
+            author = authorService.getAuthorById(id);
+        } catch (IdNotFoundException exception) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, exception.getMessage(), exception);
+        }
+        return author;
     }
 
     @GetMapping("/author/get/all")

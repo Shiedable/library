@@ -1,5 +1,8 @@
 package eu.deltasource.training.library.repository;
 
+import eu.deltasource.training.library.exceptions.NegativeIdException;
+import eu.deltasource.training.library.exceptions.NegativeSaleQuantityException;
+import eu.deltasource.training.library.exceptions.NullDateException;
 import eu.deltasource.training.library.model.Sale;
 import org.springframework.stereotype.Repository;
 
@@ -25,10 +28,11 @@ public class SalesRepository {
         return sales.get(id);
     }
 
-    public void updateSaleById(int id, int book_id, LocalDate sale_date, int quantity) {
+    public void updateSaleById(int id, int bookId, LocalDate saleDate, int quantity)
+            throws NegativeIdException, NullDateException, NegativeSaleQuantityException {
         Sale sale = sales.get(id);
-        sale.setBook_id(book_id);
-        sale.setSale_date(sale_date);
+        sale.setBookId(bookId);
+        sale.setSaleDate(saleDate);
         sale.setQuantity(quantity);
     }
 
