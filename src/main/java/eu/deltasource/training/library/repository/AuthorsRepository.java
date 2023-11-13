@@ -1,6 +1,6 @@
 package eu.deltasource.training.library.repository;
 
-import eu.deltasource.training.library.exceptions.EmptyAuthorNameException;
+import eu.deltasource.training.library.exceptions.EmptyStringException;
 import eu.deltasource.training.library.exceptions.NullDateException;
 import eu.deltasource.training.library.model.Author;
 import org.springframework.stereotype.Repository;
@@ -28,7 +28,7 @@ public class AuthorsRepository {
     }
 
     public void updateAuthorById(int id, String firstName, String lastName, LocalDate birthDate)
-            throws EmptyAuthorNameException, NullDateException {
+            throws EmptyStringException, NullDateException {
         Author author = authors.get(id);
         author.setFirstName(firstName);
         author.setLastName(lastName);

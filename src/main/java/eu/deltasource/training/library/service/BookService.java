@@ -19,7 +19,7 @@ public class BookService {
 
 
     public void addBook(int authorId, String title, String publicationDate, String isbn, double price)
-            throws NegativeIdException, EmptyIsbnException, EmptyBookTitleException, NegativeBookPriceException,
+            throws NegativeIdException, EmptyStringException, NegativeNumberException,
             NullDateException, IdNotFoundException {
         validateAuthorID(authorId);
         Book book = new Book(authorId, title, LocalDate.parse(publicationDate), isbn, price);
@@ -31,12 +31,13 @@ public class BookService {
         books.deleteBookById(id);
     }
 
-    public void updateBookById(int id, int authorId, String title, String publication_date, String isbn, double price)
-            throws NegativeIdException, EmptyIsbnException, EmptyBookTitleException, NegativeBookPriceException,
+    public void updateBookById(int id, int authorId, String title, String publicationDateString, String isbn, double price)
+            throws NegativeIdException, EmptyStringException, NegativeNumberException,
             NullDateException, IdNotFoundException {
         validateBookID(id);
         validateAuthorID(authorId);
-        books.updateBookById(id, authorId, title, LocalDate.parse(publication_date), isbn, price);
+        LocalDate publicationDate = validateAndParseDate(publicationDateString);
+        books.updateBookById(id, authorId, title, publicationDate, isbn, price);
     }
 
     public Book getBookById(int id) throws IdNotFoundException {
@@ -58,5 +59,12 @@ public class BookService {
         if (id >= books.getAllBooks().size()) {
             throw new IdNotFoundException("Book with such ID does not exist");
         }
+    }
+
+    private LocalDate validateAndParseDate(String date) {
+        if (date == null) {
+            return null;
+        }
+        return LocalDate.parse(date);
     }
 }

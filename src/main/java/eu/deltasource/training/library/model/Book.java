@@ -18,8 +18,8 @@ public class Book {
     }
 
     public Book(int authorId, String title, LocalDate publicationDate, String isbn, double price)
-            throws EmptyBookTitleException, NullDateException, NegativeIdException, EmptyIsbnException,
-            NegativeBookPriceException {
+            throws NullDateException, NegativeIdException, EmptyStringException,
+            NegativeNumberException {
         setAuthorId(authorId);
         setTitle(title);
         setPublicationDate(publicationDate);
@@ -35,11 +35,11 @@ public class Book {
         }
     }
 
-    public void setTitle(String title) throws EmptyBookTitleException {
+    public void setTitle(String title) throws EmptyStringException {
         if (hasLength(title)) {
             this.title = title;
         } else {
-            throw new EmptyBookTitleException("Book title cannot be empty");
+            throw new EmptyStringException("Book title cannot be empty");
         }
     }
 
@@ -51,19 +51,19 @@ public class Book {
         }
     }
 
-    public void setIsbn(String isbn) throws EmptyIsbnException {
+    public void setIsbn(String isbn) throws EmptyStringException {
         if (hasLength(isbn)) {
             this.isbn = isbn;
         } else {
-            throw new EmptyIsbnException("Book ISBN cannot be empty");
+            throw new EmptyStringException("Book ISBN cannot be empty");
         }
     }
 
-    public void setPrice(double price) throws NegativeBookPriceException {
+    public void setPrice(double price) throws NegativeNumberException {
         if (price > 0.0) {
             this.price = price;
         } else {
-            throw new NegativeBookPriceException("Book price cannot be negative");
+            throw new NegativeNumberException("Book price cannot be negative");
         }
     }
 

@@ -2,7 +2,7 @@ package eu.deltasource.training.library.service;
 
 import eu.deltasource.training.library.exceptions.IdNotFoundException;
 import eu.deltasource.training.library.exceptions.NegativeIdException;
-import eu.deltasource.training.library.exceptions.NegativeSaleQuantityException;
+import eu.deltasource.training.library.exceptions.NegativeNumberException;
 import eu.deltasource.training.library.exceptions.NullDateException;
 import eu.deltasource.training.library.model.Sale;
 import eu.deltasource.training.library.repository.SalesRepository;
@@ -21,7 +21,7 @@ public class SaleService {
     private BookService bookService;
 
     public void addSale(int bookId, String saleDate, int quantity)
-            throws NegativeIdException, NegativeSaleQuantityException, NullDateException, IdNotFoundException {
+            throws NegativeIdException, NegativeNumberException, NullDateException, IdNotFoundException {
         validateBookID(bookId);
         Sale sale = new Sale(bookId, LocalDate.parse(saleDate), quantity);
         sales.addSale(sale);
@@ -32,11 +32,12 @@ public class SaleService {
         sales.deleteSaleById(id);
     }
 
-    public void updateSaleById(int id, int bookId, String saleDate, int quantity)
-            throws NegativeIdException, NegativeSaleQuantityException, NullDateException, IdNotFoundException {
+    public void updateSaleById(int id, int bookId, String saleDateString, int quantity)
+            throws NegativeIdException, NegativeNumberException, NullDateException, IdNotFoundException {
         validateSaleID(id);
         validateBookID(bookId);
-        sales.updateSaleById(id, bookId, LocalDate.parse(saleDate), quantity);
+        LocalDate saleDate = validateAndParseDate(saleDateString);
+        sales.updateSaleById(id, bookId, saleDate, quantity);
     }
 
     public Sale getSaleById(int id) throws IdNotFoundException {
@@ -58,5 +59,12 @@ public class SaleService {
         if (id >= bookService.getAllBooks().size()) {
             throw new IdNotFoundException("Book with such ID does not exist");
         }
+    }
+
+    private LocalDate validateAndParseDate(String date) {
+        if (date == null) {
+            return null;
+        }
+        return LocalDate.parse(date);
     }
 }

@@ -1,7 +1,7 @@
 package eu.deltasource.training.library.model;
 
 import eu.deltasource.training.library.exceptions.NegativeIdException;
-import eu.deltasource.training.library.exceptions.NegativeSaleQuantityException;
+import eu.deltasource.training.library.exceptions.NegativeNumberException;
 import eu.deltasource.training.library.exceptions.NullDateException;
 
 import java.time.LocalDate;
@@ -16,7 +16,7 @@ public class Sale {
     }
 
     public Sale(int bookId, LocalDate saleDate, int quantity)
-            throws NegativeIdException, NullDateException, NegativeSaleQuantityException {
+            throws NegativeIdException, NullDateException, NegativeNumberException {
         setBookId(bookId);
         setSaleDate(saleDate);
         setQuantity(quantity);
@@ -38,11 +38,11 @@ public class Sale {
         }
     }
 
-    public void setQuantity(int quantity) throws NegativeSaleQuantityException {
+    public void setQuantity(int quantity) throws NegativeNumberException {
         if (quantity > 0) {
             this.quantity = quantity;
         } else {
-            throw new NegativeSaleQuantityException("Sale quantity cannot be negative");
+            throw new NegativeNumberException("Sale quantity cannot be negative");
         }
     }
 

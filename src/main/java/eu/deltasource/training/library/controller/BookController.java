@@ -30,22 +30,22 @@ public class BookController {
                                   @RequestParam double price) {
         try {
             bookService.addBook(authorId, title, pd, isbn, price);
-        } catch ( NegativeBookPriceException | EmptyBookTitleException | EmptyIsbnException | NullDateException |
-        NegativeIdException exception) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, exception.getMessage(), exception);
+        } catch ( NegativeNumberException | EmptyStringException | NullDateException | NegativeIdException exception) {
+            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (IdNotFoundException exception) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, exception.getMessage(), exception);
+            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/book/delete/{id}")
-    public void deleteBookById(@PathVariable int id) {
+    public ResponseEntity<String> deleteBookById(@PathVariable int id) {
         try {
             bookService.deleteBookById(id);
         } catch (IdNotFoundException exception) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, exception.getMessage(), exception);
+            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
         }
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/book/update/{id}")
@@ -57,26 +57,28 @@ public class BookController {
                                  @RequestParam(required = false) double price) {
         try {
             bookService.updateBookById(id, authorId, title, pd, isbn, price);
-        } catch ( NegativeBookPriceException | EmptyBookTitleException | EmptyIsbnException | NullDateException |
+        } catch ( NegativeNumberException | EmptyStringException | NullDateException |
                   NegativeIdException exception) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, exception.getMessage(), exception);
+            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (IdNotFoundException exception) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, exception.getMessage(), exception);
+            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/book/get/{id}")
-    public Book getBookById(@PathVariable int id) {
+    public ResponseEntity<String> getBookById(@PathVariable int id) {
+        Book book;
         try {
-            return bookService.getBookById(id);
+            book = bookService.getBookById(id);
         } catch (IdNotFoundException exception) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, exception.getMessage(), exception);
+            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<String>(book.toString(), HttpStatus.OK);
     }
 
     @GetMapping("/book/get/all")
-    public List<Book> getAllBooks() {
-        return bookService.getAllBooks();
+    public ResponseEntity<String> getAllBooks() {
+        return new ResponseEntity<String>(bookService.getAllBooks().toString(), HttpStatus.NOT_FOUND);
     }
 }

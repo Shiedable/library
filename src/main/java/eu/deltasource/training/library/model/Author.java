@@ -1,6 +1,6 @@
 package eu.deltasource.training.library.model;
 
-import eu.deltasource.training.library.exceptions.EmptyAuthorNameException;
+import eu.deltasource.training.library.exceptions.EmptyStringException;
 import eu.deltasource.training.library.exceptions.NullDateException;
 
 import java.time.LocalDate;
@@ -16,25 +16,25 @@ public class Author {
     }
 
     public Author(String firstName, String lastName, LocalDate birthDate)
-            throws EmptyAuthorNameException, NullDateException {
+            throws EmptyStringException, NullDateException {
         setFirstName(firstName);
         setLastName(lastName);
         setBirthday(birthDate);
     }
 
-    public void setFirstName(String firstName) throws EmptyAuthorNameException {
+    public void setFirstName(String firstName) throws EmptyStringException {
         if (hasLength(firstName)) {
             this.firstName = firstName;
         } else {
-            throw new EmptyAuthorNameException("Empty first name!");
+            throw new EmptyStringException("Empty first name!");
         }
     }
 
-    public void setLastName(String lastName) throws EmptyAuthorNameException {
+    public void setLastName(String lastName) throws EmptyStringException {
         if (hasLength(lastName)) {
             this.lastName = lastName;
         } else {
-            throw new EmptyAuthorNameException("Empty last name!");
+            throw new EmptyStringException("Empty last name!");
         }
     }
 

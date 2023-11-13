@@ -1,6 +1,6 @@
 package eu.deltasource.training.library.controller;
 
-import eu.deltasource.training.library.exceptions.EmptyAuthorNameException;
+import eu.deltasource.training.library.exceptions.EmptyStringException;
 import eu.deltasource.training.library.exceptions.IdNotFoundException;
 import eu.deltasource.training.library.exceptions.NullDateException;
 import eu.deltasource.training.library.model.Author;
@@ -10,9 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 
 @Controller
 public class AuthorController {
@@ -30,8 +27,8 @@ public class AuthorController {
                                     @RequestParam("birthDate") String birthDate) {
         try {
             authorService.addAuthor(firstName, lastName, birthDate);
-        } catch (EmptyAuthorNameException | NullDateException exception) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, exception.getMessage(), exception);
+        } catch (EmptyStringException | NullDateException exception) {
+            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok().build();
     }
@@ -41,7 +38,7 @@ public class AuthorController {
         try {
             authorService.deleteAuthorById(id);
         } catch (IdNotFoundException exception) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, exception.getMessage(), exception);
+            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok().build();
     }
@@ -53,29 +50,28 @@ public class AuthorController {
                                   @RequestParam(name = "birthDate", required = false) String birthDate) {
         try {
             authorService.updateAuthorById(id, firstName, lastName, birthDate);
-        } catch (EmptyAuthorNameException | NullDateException exception) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, exception.getMessage(), exception);
+        } catch (EmptyStringException | NullDateException exception) {
+            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (IdNotFoundException exception) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, exception.getMessage(), exception);
+            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/author/get/{id}")
-    @ResponseBody
-    public Author getAuthorById(@PathVariable int id) {
+
+    public ResponseEntity<String> getAuthorById(@PathVariable int id) {
         Author author;
         try {
             author = authorService.getAuthorById(id);
         } catch (IdNotFoundException exception) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, exception.getMessage(), exception);
+            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
         }
-        return author;
+        return new ResponseEntity<String>(author.toString(), HttpStatus.OK);
     }
 
     @GetMapping("/author/get/all")
-    @ResponseBody
-    public List<Author> getAllAuthors() {
-        return authorService.getAllAuthors();
+    public ResponseEntity<String> getAllAuthors() {
+        return new ResponseEntity<>(authorService.getAllAuthors().toString(), HttpStatus.OK);
     }
 }

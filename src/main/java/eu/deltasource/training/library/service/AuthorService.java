@@ -1,12 +1,13 @@
 package eu.deltasource.training.library.service;
 
-import eu.deltasource.training.library.exceptions.EmptyAuthorNameException;
+import eu.deltasource.training.library.exceptions.EmptyStringException;
 import eu.deltasource.training.library.exceptions.IdNotFoundException;
 import eu.deltasource.training.library.exceptions.NullDateException;
 import eu.deltasource.training.library.model.Author;
 import eu.deltasource.training.library.repository.AuthorsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,8 +19,9 @@ public class AuthorService {
     private AuthorsRepository authors;
 
     public void addAuthor(String firstName, String lastName, String birthDate)
-            throws EmptyAuthorNameException, NullDateException {
-        Author author = new Author(firstName, lastName, LocalDate.parse(birthDate));
+            throws EmptyStringException, NullDateException {
+        LocalDate birthday = validateAndParseDate(birthDate);
+        Author author = new Author(firstName, lastName, birthday);
         authors.addAuthor(author);
     }
 
@@ -29,14 +31,9 @@ public class AuthorService {
     }
 
     public void updateAuthorById(int id, String firstName, String lastName, String birthDate)
-            throws EmptyAuthorNameException, NullDateException, IdNotFoundException {
+            throws EmptyStringException, NullDateException, IdNotFoundException {
         validateID(id);
-        LocalDate birthday;
-        if (birthDate == null) {
-            birthday = null;
-        } else {
-            birthday = LocalDate.parse(birthDate);
-        }
+        LocalDate birthday = validateAndParseDate(birthDate);
         authors.updateAuthorById(id, firstName, lastName, birthday);
     }
 
@@ -53,5 +50,15 @@ public class AuthorService {
         if (id >= authors.getAllAuthors().size()) {
             throw new IdNotFoundException("Author with such ID does not exist");
         }
+    }
+
+    private LocalDate validateAndParseDate(String date) {
+        if (date == null) {
+            return null;
+        }
+        if (!StringUtils.hasLength(date)) {
+            throw new EmptyStringException("Birth date is empty!");
+        }
+            return LocalDate.parse(date);
     }
 }

@@ -2,7 +2,7 @@ package eu.deltasource.training.library.controller;
 
 import eu.deltasource.training.library.exceptions.IdNotFoundException;
 import eu.deltasource.training.library.exceptions.NegativeIdException;
-import eu.deltasource.training.library.exceptions.NegativeSaleQuantityException;
+import eu.deltasource.training.library.exceptions.NegativeNumberException;
 import eu.deltasource.training.library.exceptions.NullDateException;
 import eu.deltasource.training.library.model.Sale;
 import eu.deltasource.training.library.service.SaleService;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 
+import java.awt.desktop.PreferencesEvent;
 import java.util.List;
 
 @Controller
@@ -28,21 +29,22 @@ public class SaleController {
                                           @RequestParam int quantity) {
         try {
             saleService.addSale(bookId, saleDate, quantity);
-        } catch (NegativeIdException | NegativeSaleQuantityException | NullDateException exception) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, exception.getMessage(), exception);
+        } catch (NegativeIdException | NegativeNumberException | NullDateException exception) {
+            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (IdNotFoundException exception) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, exception.getMessage(), exception);
+            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/sale/delete/{id}")
-    public void deleteSaleById(@PathVariable int id) {
+    public ResponseEntity<String> deleteSaleById(@PathVariable int id) {
         try {
             saleService.deleteSaleById(id);
         } catch (IdNotFoundException exception) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, exception.getMessage(), exception);
+            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
         }
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/sale/update/{id}")
@@ -52,25 +54,27 @@ public class SaleController {
                                  @RequestParam(required = false) int quantity) {
         try {
             saleService.updateSaleById(id, bookId, saleDate, quantity);
-        } catch (NegativeIdException | NegativeSaleQuantityException | NullDateException exception) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, exception.getMessage(), exception);
+        } catch (NegativeIdException | NegativeNumberException | NullDateException exception) {
+            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (IdNotFoundException exception) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, exception.getMessage(), exception);
+            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/sale/get/{id}")
-    public Sale getSaleById(@PathVariable int id) {
+    public ResponseEntity<String> getSaleById(@PathVariable int id) {
+        Sale sale;
         try {
-            return saleService.getSaleById(id);
+            sale = saleService.getSaleById(id);
         } catch (IdNotFoundException exception) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, exception.getMessage(), exception);
+            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(sale.toString(), HttpStatus.OK);
     }
 
     @GetMapping("/sale/get/all")
-    public List<Sale> getAllSales() {
-        return saleService.getAllSales();
+    public ResponseEntity<String> getAllSales() {
+        return new ResponseEntity<>(saleService.getAllSales().toString(), HttpStatus.OK);
     }
 }

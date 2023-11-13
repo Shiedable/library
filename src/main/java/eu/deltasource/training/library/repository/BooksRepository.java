@@ -31,7 +31,7 @@ public class BooksRepository {
     }
 
     public void updateBookById(int id, int authorId, String title, LocalDate publicationDate, String isbn, double price)
-            throws NegativeIdException, EmptyIsbnException, NegativeBookPriceException, EmptyBookTitleException,
+            throws NegativeIdException, NegativeNumberException, EmptyStringException,
             NullDateException {
         Book book = books.get(id);
         book.setAuthorId(authorId);
