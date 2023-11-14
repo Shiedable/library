@@ -7,17 +7,20 @@ import eu.deltasource.training.library.model.Author;
 import eu.deltasource.training.library.repository.AuthorsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.springframework.util.StringUtils.hasLength;
+
 @Service
 public class AuthorService {
 
+    //TODO: change all field injections to contstructor injections
     @Autowired
     private AuthorsRepository authors;
 
+    //TODO: remove throws clause
     public void addAuthor(String firstName, String lastName, String birthDate)
             throws EmptyStringException, NullDateException {
         LocalDate birthday = validateAndParseDate(birthDate);
@@ -56,7 +59,7 @@ public class AuthorService {
         if (date == null) {
             return null;
         }
-        if (!StringUtils.hasLength(date)) {
+        if (!hasLength(date)) {
             throw new EmptyStringException("Birth date is empty!");
         }
             return LocalDate.parse(date);

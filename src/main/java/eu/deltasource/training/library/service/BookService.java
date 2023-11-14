@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 
+
+//TODO: get all the validators in one class and use it inside the services
+//TODO: remove id validators
 @Service
 public class BookService {
 

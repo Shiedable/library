@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
+//TODO: add hamcrest
+//TODO: do not call the controller directly, instead find a way to do endpoint requests
 public class AddingAuthorStepDefinition {
 
     @Autowired

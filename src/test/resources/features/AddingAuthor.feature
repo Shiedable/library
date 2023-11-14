@@ -1,6 +1,6 @@
 Feature: Adding an author to the database
 
-  Scenario Outline: Author is successfully added with valid fields
+  Scenario Outline: Author is successfully added in the database
     Given Having no authors saved in the database
     When adding a new Author with valid <firstName>, <lastName> and <birthDate>
     Then The database should contain that same Author

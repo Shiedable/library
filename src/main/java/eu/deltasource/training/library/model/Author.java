@@ -6,6 +6,7 @@ import eu.deltasource.training.library.exceptions.NullDateException;
 import java.time.LocalDate;
 import static org.springframework.util.StringUtils.hasLength;
 
+//pojo that represents an author in our system
 public class Author {
 
     private String firstName;
@@ -13,15 +14,16 @@ public class Author {
     private LocalDate birthDate;
 
     public Author() {
-    }
+    } // remove no args contstructors
 
-    public Author(String firstName, String lastName, LocalDate birthDate)
-            throws EmptyStringException, NullDateException {
+    //TODO : remove throws clause
+    public Author(String firstName, String lastName, LocalDate birthDate) {
         setFirstName(firstName);
         setLastName(lastName);
         setBirthday(birthDate);
     }
 
+    //TODO: guard clause all of the setters
     public void setFirstName(String firstName) throws EmptyStringException {
         if (hasLength(firstName)) {
             this.firstName = firstName;
