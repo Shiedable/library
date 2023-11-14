@@ -19,10 +19,6 @@ jobs:
         with:
           java-version: 17
           distribution: 'openjdk'
-
-      - name: Setting up Maven
-        uses: actions/setup-maven@v2
-        with:
           maven-version: 3.9.4
 
   build:
