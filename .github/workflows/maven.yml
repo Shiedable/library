@@ -21,6 +21,14 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Login to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and Push Docker Image
+        run: | 
+          docker build -t "ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:library" .
+          docker push "ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:library"
+
       - name: Build project
         run: mvn clean compile
 
