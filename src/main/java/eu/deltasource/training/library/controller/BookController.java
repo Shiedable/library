@@ -8,9 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class BookController {
@@ -23,14 +22,13 @@ public class BookController {
     }
 
     @PostMapping("/book/add")
-    public ResponseEntity<String> addBook(@RequestParam int authorId,
-                                  @RequestParam String title,
+    public ResponseEntity<String> addBook(@RequestParam String title,
                                   @RequestParam String pd,
                                   @RequestParam String isbn,
                                   @RequestParam double price) {
         try {
-            bookService.addBook(authorId, title, pd, isbn, price);
-        } catch ( NegativeNumberException | EmptyStringException | NullDateException | NegativeIdException exception) {
+            bookService.addBook(title, pd, isbn, price);
+        } catch (NegativeNumberException | InvalidStringException | InvalidDateException | NegativeIdException exception) {
             return new ResponseEntity<String>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (IdNotFoundException exception) {
             return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
@@ -39,7 +37,7 @@ public class BookController {
     }
 
     @DeleteMapping("/book/delete/{id}")
-    public ResponseEntity<String> deleteBookById(@PathVariable int id) {
+    public ResponseEntity<String> deleteBookById(@PathVariable long id) {
         try {
             bookService.deleteBookById(id);
         } catch (IdNotFoundException exception) {
@@ -49,16 +47,15 @@ public class BookController {
     }
 
     @PutMapping("/book/update/{id}")
-    public ResponseEntity<String> updateBookById(@PathVariable int id,
-                                 @RequestParam(required = false) int authorId,
+    public ResponseEntity<String> updateBookById(@PathVariable long id,
                                  @RequestParam(required = false) String title,
                                  @RequestParam(required = false) String pd,
                                  @RequestParam(required = false) String isbn,
                                  @RequestParam(required = false) double price) {
         try {
-            bookService.updateBookById(id, authorId, title, pd, isbn, price);
-        } catch ( NegativeNumberException | EmptyStringException | NullDateException |
-                  NegativeIdException exception) {
+            bookService.updateBookById(id, title, pd, isbn, price);
+        } catch (NegativeNumberException | InvalidStringException | InvalidDateException |
+                 NegativeIdException exception) {
             return new ResponseEntity<String>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (IdNotFoundException exception) {
             return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
@@ -67,8 +64,8 @@ public class BookController {
     }
 
     @GetMapping("/book/get/{id}")
-    public ResponseEntity<String> getBookById(@PathVariable int id) {
-        Book book;
+    public ResponseEntity<String> getBookById(@PathVariable long id) {
+        Optional<Book> book;
         try {
             book = bookService.getBookById(id);
         } catch (IdNotFoundException exception) {

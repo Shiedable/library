@@ -1,74 +1,82 @@
 package eu.deltasource.training.library.model;
 
-import eu.deltasource.training.library.exceptions.*;
-
-import static org.springframework.util.StringUtils.hasLength;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
+@Entity
 public class Book {
 
-    private int authorId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "book_id", nullable = false)
+    private long bookId;
+    @Column(name = "title", nullable = false)
     private String title;
+    @Column(name = "publication_date", nullable = false)
     private LocalDate publicationDate;
+    @Column(name = "ISBN", nullable = false)
     private String isbn;
+    @Column(name = "price", nullable = false)
     private double price;
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.REMOVE)
+    private List<Sale> sales;
+
+    @ManyToMany
+    @JoinTable(
+            name = "author_book",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id")
+    )
+    private List<Author> authors;
 
     public Book() {
     }
 
-    public Book(int authorId, String title, LocalDate publicationDate, String isbn, double price)
-            throws NullDateException, NegativeIdException, EmptyStringException,
-            NegativeNumberException {
-        setAuthorId(authorId);
-        setTitle(title);
-        setPublicationDate(publicationDate);
-        setIsbn(isbn);
-        setPrice(price);
+    public Book(String title, LocalDate publicationDate, String isbn, double price) {
+        this.title = title;
+        this.publicationDate = publicationDate;
+        this.isbn = isbn;
+        this.price = price;
     }
 
-    public void setAuthorId(int authorId) throws NegativeIdException {
-        if (authorId >= 0) {
-            this.authorId = authorId;
-        } else {
-           throw new NegativeIdException("Author ID cannot be negative");
-        }
+    public Book(long bookId, String title, LocalDate publicationDate, String isbn, double price) {
+        this(title, publicationDate, isbn, price);
+        this.bookId = bookId;
     }
 
-    public void setTitle(String title) throws EmptyStringException {
-        if (hasLength(title)) {
-            this.title = title;
-        } else {
-            throw new EmptyStringException("Book title cannot be empty");
-        }
+    public long getBookId() {
+        return bookId;
     }
 
-    public void setPublicationDate(LocalDate publicationDate) throws NullDateException {
-        if (publicationDate != null) {
-            this.publicationDate = publicationDate;
-        } else {
-            throw new NullDateException("Publication date is null");
-        }
+    public String getTitle() {
+        return title;
     }
 
-    public void setIsbn(String isbn) throws EmptyStringException {
-        if (hasLength(isbn)) {
-            this.isbn = isbn;
-        } else {
-            throw new EmptyStringException("Book ISBN cannot be empty");
-        }
+    public LocalDate getPublicationDate() {
+        return publicationDate;
     }
 
-    public void setPrice(double price) throws NegativeNumberException {
-        if (price > 0.0) {
-            this.price = price;
-        } else {
-            throw new NegativeNumberException("Book price cannot be negative");
-        }
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public List<Sale> getSales() {
+        return sales;
+    }
+
+    public List<Author> getAuthors() {
+        return authors;
     }
 
     @Override
     public String toString() {
-        return authorId + " - " + title + ", "  + publicationDate + " | " + isbn + " | " + price + "$";
+        return title + ", "  + publicationDate + " | " + isbn + " | " + price + "$";
     }
 }

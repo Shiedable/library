@@ -1,55 +1,71 @@
 package eu.deltasource.training.library.model;
 
-import eu.deltasource.training.library.exceptions.EmptyStringException;
-import eu.deltasource.training.library.exceptions.NullDateException;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import static org.springframework.util.StringUtils.hasLength;
+import java.util.List;
 
 //pojo that represents an author in our system
+@Entity
+@Table(name="authors")
 public class Author {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "author_id", nullable = false)
+    private long authorId;
+    @Column(name = "first_name", nullable = false)
     private String firstName;
+    @Column(name = "last_name", nullable = false)
     private String lastName;
+    @Column(name = "birthdate", nullable = false)
     private LocalDate birthDate;
 
+    @ManyToMany
+    @JoinTable(
+            name = "author_book",
+            joinColumns = @JoinColumn(name = "author_id"),
+            inverseJoinColumns = @JoinColumn(name = "book_id")
+    )
+    private List<Book> books;
+
     public Author() {
-    } // remove no args contstructors
 
-    //TODO : remove throws clause
+    }
+
     public Author(String firstName, String lastName, LocalDate birthDate) {
-        setFirstName(firstName);
-        setLastName(lastName);
-        setBirthday(birthDate);
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.birthDate = birthDate;
     }
 
-    //TODO: guard clause all of the setters
-    public void setFirstName(String firstName) throws EmptyStringException {
-        if (hasLength(firstName)) {
-            this.firstName = firstName;
-        } else {
-            throw new EmptyStringException("Empty first name!");
-        }
+    public Author(long authorId, String firstName, String lastName, LocalDate birthDate) {
+        this(firstName, lastName, birthDate);
+        this.authorId = authorId;
     }
 
-    public void setLastName(String lastName) throws EmptyStringException {
-        if (hasLength(lastName)) {
-            this.lastName = lastName;
-        } else {
-            throw new EmptyStringException("Empty last name!");
-        }
+    public long getAuthorId() {
+        return authorId;
     }
 
-    public void setBirthday(LocalDate birthDate) throws NullDateException {
-        if (birthDate != null) {
-            this.birthDate = birthDate;
-        } else {
-            throw new NullDateException("Null birthdate");
-        }
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+    public List<Book> getBooks() {
+        return books;
     }
 
     @Override
     public String toString() {
-        return firstName + lastName + ", birthday=" + birthDate;
+        return firstName + " " + lastName + ", birthday=" + birthDate;
     }
 }

@@ -1,70 +1,74 @@
 package eu.deltasource.training.library.service;
 
-import eu.deltasource.training.library.exceptions.IdNotFoundException;
-import eu.deltasource.training.library.exceptions.NegativeIdException;
+import eu.deltasource.training.library.exceptions.InvalidDateException;
 import eu.deltasource.training.library.exceptions.NegativeNumberException;
-import eu.deltasource.training.library.exceptions.NullDateException;
 import eu.deltasource.training.library.model.Sale;
 import eu.deltasource.training.library.repository.SalesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Optional;
+
+import static eu.deltasource.training.library.validator.Validator.*;
+import static org.springframework.util.StringUtils.hasLength;
 
 @Service
 public class SaleService {
 
-    @Autowired
     private SalesRepository sales;
+
     @Autowired
-    private BookService bookService;
-
-    public void addSale(int bookId, String saleDate, int quantity)
-            throws NegativeIdException, NegativeNumberException, NullDateException, IdNotFoundException {
-        validateBookID(bookId);
-        Sale sale = new Sale(bookId, LocalDate.parse(saleDate), quantity);
-        sales.addSale(sale);
+    public SaleService(SalesRepository salesRepository) {
+        sales = salesRepository;
     }
 
-    public void deleteSaleById(int id) throws IdNotFoundException {
-        validateSaleID(id);
-        sales.deleteSaleById(id);
+    public void addSale(String saleDate, int quantity) {
+        validateDate(saleDate);
+        validateNumber(quantity);
+        Sale sale = new Sale(LocalDate.parse(saleDate), quantity);
+        sales.save(sale);
     }
 
-    public void updateSaleById(int id, int bookId, String saleDateString, int quantity)
-            throws NegativeIdException, NegativeNumberException, NullDateException, IdNotFoundException {
-        validateSaleID(id);
-        validateBookID(bookId);
-        LocalDate saleDate = validateAndParseDate(saleDateString);
-        sales.updateSaleById(id, bookId, saleDate, quantity);
+    public void deleteSaleById(long id) {
+        validateId(id, sales);
+        sales.deleteById(id);
     }
 
-    public Sale getSaleById(int id) throws IdNotFoundException {
-        validateSaleID(id);
-        return sales.getSaleById(id);
+    public void updateSaleById(long id, String saleDateString, int quantity) {
+        validateId(id, sales);
+        Sale sale = sales.findById(id).get();
+        Sale updatedSale = setUpdatedSale(id, sale, saleDateString, quantity);
+        sales.save(updatedSale);
+    }
+
+    public Optional<Sale> getSaleById(long id) {
+        validateId(id, sales);
+        return sales.findById(id);
     }
 
     public List<Sale> getAllSales() {
-        return sales.getAllSales();
+        return (List<Sale>) sales.findAll();
     }
 
-    private void validateSaleID(int id) throws IdNotFoundException {
-        if (id >= sales.getAllSales().size()) {
-            throw new IdNotFoundException("Sale with such ID does not exist");
+    private Sale setUpdatedSale(long id, Sale sale, String saleDateString, int quantity) {
+        LocalDate saleDate;
+        if (!hasLength(saleDateString)) {
+            saleDate = sale.getSaleDate();
+        } else {
+            try {
+                saleDate = LocalDate.parse(saleDateString);
+            } catch (DateTimeParseException exception) {
+                throw new InvalidDateException("Date format is invalid");
+            }
         }
-    }
-
-    private void validateBookID(int id) throws IdNotFoundException {
-        if (id >= bookService.getAllBooks().size()) {
-            throw new IdNotFoundException("Book with such ID does not exist");
+        if (quantity < 0) {
+            throw new NegativeNumberException("quantity should be positive");
+        } else if (quantity == 0) {
+            quantity = sale.getQuantity();
         }
-    }
-
-    private LocalDate validateAndParseDate(String date) {
-        if (date == null) {
-            return null;
-        }
-        return LocalDate.parse(date);
+        return new Sale(id, saleDate, quantity);
     }
 }

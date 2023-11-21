@@ -1,73 +1,84 @@
 package eu.deltasource.training.library.service;
 
-import eu.deltasource.training.library.exceptions.*;
+import eu.deltasource.training.library.exceptions.InvalidDateException;
+import eu.deltasource.training.library.exceptions.NegativeNumberException;
+import eu.deltasource.training.library.model.Author;
 import eu.deltasource.training.library.model.Book;
 import eu.deltasource.training.library.repository.BooksRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Optional;
+
+import static eu.deltasource.training.library.validator.Validator.*;
+import static org.springframework.util.StringUtils.hasLength;
 
 
-//TODO: get all the validators in one class and use it inside the services
-//TODO: remove id validators
 @Service
 public class BookService {
 
-    @Autowired
     private BooksRepository books;
+
     @Autowired
-    private AuthorService authorService;
-
-
-    public void addBook(int authorId, String title, String publicationDate, String isbn, double price)
-            throws NegativeIdException, EmptyStringException, NegativeNumberException,
-            NullDateException, IdNotFoundException {
-        validateAuthorID(authorId);
-        Book book = new Book(authorId, title, LocalDate.parse(publicationDate), isbn, price);
-        books.addBook(book);
+    public BookService(BooksRepository booksRepository) {
+        books = booksRepository;
     }
 
-    public void deleteBookById(int id) throws IdNotFoundException {
-        validateBookID(id);
-        books.deleteBookById(id);
+    public void addBook(String title, String publicationDate, String isbn, double price) {
+        validateString(title);
+        validateDate(publicationDate);
+        validateString(isbn);
+        validateNumber(price);
+        Book book = new Book(title, LocalDate.parse(publicationDate), isbn, price);
+        books.save(book);
     }
 
-    public void updateBookById(int id, int authorId, String title, String publicationDateString, String isbn, double price)
-            throws NegativeIdException, EmptyStringException, NegativeNumberException,
-            NullDateException, IdNotFoundException {
-        validateBookID(id);
-        validateAuthorID(authorId);
-        LocalDate publicationDate = validateAndParseDate(publicationDateString);
-        books.updateBookById(id, authorId, title, publicationDate, isbn, price);
+    public void deleteBookById(long id) {
+        validateId(id, books);
+        books.deleteById(id);
     }
 
-    public Book getBookById(int id) throws IdNotFoundException {
-        validateBookID(id);
-        return books.getBookById(id);
+    public void updateBookById(long id, String title, String publicationDate, String isbn, double price) {
+        validateId(id, books);
+        Book book = books.findById(id).get();
+        Book updatedBook = setUpdatedAuthor(id, book, title, publicationDate, isbn, price);
+        books.save(updatedBook);
+    }
+
+    public Optional<Book> getBookById(long id) {
+        validateId(id, books);
+        return books.findById(id);
     }
 
     public List<Book> getAllBooks() {
-        return books.getAllBooks();
+        return (List<Book>) books.findAll();
     }
 
-    private void validateAuthorID(int id) throws IdNotFoundException {
-        if (id >= authorService.getAllAuthors().size()) {
-            throw new IdNotFoundException("Author with such ID does not exist");
+    private Book setUpdatedAuthor(long id, Book book, String title, String publicationDateString, String isbn, double price) {
+        LocalDate publicationDate;
+        if (!hasLength(title)) {
+            title = book.getTitle();
         }
-    }
-
-    private void validateBookID(int id) throws IdNotFoundException {
-        if (id >= books.getAllBooks().size()) {
-            throw new IdNotFoundException("Book with such ID does not exist");
+        if (!hasLength(isbn)) {
+            isbn = book.getIsbn();
         }
-    }
-
-    private LocalDate validateAndParseDate(String date) {
-        if (date == null) {
-            return null;
+        if (!hasLength(publicationDateString)) {
+            publicationDate = book.getPublicationDate();
+        } else {
+            try {
+                publicationDate = LocalDate.parse(publicationDateString);
+            } catch (DateTimeParseException exception) {
+                throw new InvalidDateException("Date format is invalid");
+            }
         }
-        return LocalDate.parse(date);
+        if (price < 0) {
+            throw new NegativeNumberException("price should be positive");
+        } else if (price == 0) {
+            price = book.getPrice();
+        }
+        return new Book(id, title, publicationDate, isbn, price);
     }
 }

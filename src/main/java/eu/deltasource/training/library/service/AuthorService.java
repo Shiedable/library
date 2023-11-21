@@ -1,67 +1,76 @@
 package eu.deltasource.training.library.service;
 
-import eu.deltasource.training.library.exceptions.EmptyStringException;
-import eu.deltasource.training.library.exceptions.IdNotFoundException;
-import eu.deltasource.training.library.exceptions.NullDateException;
+import eu.deltasource.training.library.exceptions.InvalidDateException;
 import eu.deltasource.training.library.model.Author;
 import eu.deltasource.training.library.repository.AuthorsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Optional;
 
+import static eu.deltasource.training.library.validator.Validator.*;
 import static org.springframework.util.StringUtils.hasLength;
+
 
 @Service
 public class AuthorService {
 
-    //TODO: change all field injections to contstructor injections
-    @Autowired
     private AuthorsRepository authors;
 
-    //TODO: remove throws clause
-    public void addAuthor(String firstName, String lastName, String birthDate)
-            throws EmptyStringException, NullDateException {
-        LocalDate birthday = validateAndParseDate(birthDate);
-        Author author = new Author(firstName, lastName, birthday);
-        authors.addAuthor(author);
+    @Autowired
+    public AuthorService(AuthorsRepository authorsRepository) {
+        authors = authorsRepository;
     }
 
-    public void deleteAuthorById(int id) throws IdNotFoundException {
-        validateID(id);
-        authors.deleteAuthorById(id);
+    public void addAuthor(String firstName, String lastName, String birthDate) {
+        validateString(firstName);
+        validateString(lastName);
+        validateDate(birthDate);
+        Author author = new Author(firstName, lastName, LocalDate.parse(birthDate));
+        authors.save(author);
     }
 
-    public void updateAuthorById(int id, String firstName, String lastName, String birthDate)
-            throws EmptyStringException, NullDateException, IdNotFoundException {
-        validateID(id);
-        LocalDate birthday = validateAndParseDate(birthDate);
-        authors.updateAuthorById(id, firstName, lastName, birthday);
+    public void deleteAuthorById(long id) {
+        validateId(id, authors);
+        authors.deleteById(id);
     }
 
-    public Author getAuthorById(int id) throws IdNotFoundException {
-        validateID(id);
-        return authors.getAuthorById(id);
+    public void updateAuthorById(long id, String firstName, String lastName, String birthDate) {
+        validateId(id, authors);
+        Author author = authors.findById(id).get();
+        Author updatedAuthor = setUpdatedAuthor(id, author, firstName, lastName, birthDate);
+        authors.save(updatedAuthor);
+    }
+
+    public Optional<Author> getAuthorById(long id) {
+        validateId(id, authors);
+        return authors.findById(id);
     }
 
     public List<Author> getAllAuthors() {
-        return authors.getAllAuthors();
+        return (List<Author>) authors.findAll();
     }
 
-    private void validateID(int id) throws IdNotFoundException {
-        if (id >= authors.getAllAuthors().size()) {
-            throw new IdNotFoundException("Author with such ID does not exist");
+    private Author setUpdatedAuthor(long id, Author author, String firstName, String lastName, String birthDate) {
+        LocalDate birthday;
+        if (!hasLength(firstName)) {
+            firstName = author.getFirstName();
         }
-    }
-
-    private LocalDate validateAndParseDate(String date) {
-        if (date == null) {
-            return null;
+        if(!hasLength(lastName)) {
+            lastName = author.getLastName();
         }
-        if (!hasLength(date)) {
-            throw new EmptyStringException("Birth date is empty!");
+        if (!hasLength(birthDate)) {
+            birthday = author.getBirthDate();
+        } else {
+            try {
+                birthday = LocalDate.parse(birthDate);
+            } catch (DateTimeParseException exception) {
+                throw new InvalidDateException("Date format is invalid");
+            }
         }
-            return LocalDate.parse(date);
+        return new Author(id, firstName, lastName, birthday);
     }
 }

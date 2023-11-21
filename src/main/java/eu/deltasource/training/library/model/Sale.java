@@ -1,53 +1,47 @@
 package eu.deltasource.training.library.model;
 
-import eu.deltasource.training.library.exceptions.NegativeIdException;
-import eu.deltasource.training.library.exceptions.NegativeNumberException;
-import eu.deltasource.training.library.exceptions.NullDateException;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
+@Entity
 public class Sale {
 
-    private int bookId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sale_id", nullable = false)
+    private long saleId;
+    @Column(name = "sale_date", nullable = false)
     private LocalDate saleDate;
+    @Column(name = "quantity", nullable = false)
     private int quantity;
+    @ManyToOne
+    @JoinColumn(name = "book_id")
+    private Book book;
 
     public Sale() {
     }
 
-    public Sale(int bookId, LocalDate saleDate, int quantity)
-            throws NegativeIdException, NullDateException, NegativeNumberException {
-        setBookId(bookId);
-        setSaleDate(saleDate);
-        setQuantity(quantity);
+    public Sale(LocalDate saleDate, int quantity) {
+        this.saleDate = saleDate;
+        this.quantity = quantity;
     }
 
-    public void setBookId(int bookId) throws NegativeIdException {
-        if (bookId > 0) {
-            this.bookId = bookId;
-        } else {
-            throw new NegativeIdException("Book ID cannot be negative");
-        }
-    }
-
-    public void setSaleDate(LocalDate saleDate) throws NullDateException {
-        if (saleDate != null) {
-            this.saleDate = saleDate;
-        } else {
-            throw new NullDateException("Sale Date is null");
-        }
-    }
-
-    public void setQuantity(int quantity) throws NegativeNumberException {
-        if (quantity > 0) {
-            this.quantity = quantity;
-        } else {
-            throw new NegativeNumberException("Sale quantity cannot be negative");
-        }
+    public Sale(long saleId, LocalDate saleDate, int quantity) {
+        this(saleDate, quantity);
+        this.saleId = saleId;
     }
 
     @Override
     public String toString() {
-        return bookId + " - " + saleDate + ", x" + quantity;
+        return  book + ": " + saleDate + ", x" + quantity;
+    }
+
+    public LocalDate getSaleDate() {
+        return saleDate;
+    }
+
+    public int getQuantity() {
+        return quantity;
     }
 }
