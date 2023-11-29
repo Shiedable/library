@@ -96,7 +96,7 @@ public class SaleServiceTest {
         //When
 
         //Then
-        assertThrows(IdNotFoundException.class, () -> saleService.deleteSaleById(saleId));
+        assertThrows(EntityNotFoundException.class, () -> saleService.deleteSaleById(saleId));
     }
 
     //UPDATE RELATED TESTS
@@ -119,7 +119,7 @@ public class SaleServiceTest {
         //When
 
         //Then
-        assertThrows(IdNotFoundException.class, () -> saleService.deleteSaleById(saleId));
+        assertThrows(EntityNotFoundException.class, () -> saleService.deleteSaleById(saleId));
     }
 
     @Test
@@ -166,7 +166,7 @@ public class SaleServiceTest {
         //When
 
         //Then
-        assertThrows(IdNotFoundException.class, () -> saleService.deleteSaleById(saleId));
+        assertThrows(EntityNotFoundException.class, () -> saleService.deleteSaleById(saleId));
     }
 
     @Test

@@ -1,8 +1,6 @@
 package eu.deltasource.training.library.controller;
 
-import eu.deltasource.training.library.exceptions.InvalidStringException;
-import eu.deltasource.training.library.exceptions.IdNotFoundException;
-import eu.deltasource.training.library.exceptions.InvalidDateException;
+import eu.deltasource.training.library.exceptions.*;
 import eu.deltasource.training.library.model.Author;
 import eu.deltasource.training.library.service.AuthorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
-//TODO: check exceptionhandlers
 @Controller
 public class AuthorController {
 
@@ -28,21 +23,13 @@ public class AuthorController {
     public ResponseEntity<String> addAuthor(@RequestParam("firstName") String firstName,
                                     @RequestParam("lastName") String lastName,
                                     @RequestParam("birthDate") String birthDate) {
-        try {
-            authorService.addAuthor(firstName, lastName, birthDate);
-        } catch (InvalidStringException | InvalidDateException exception) {
-            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        authorService.addAuthor(firstName, lastName, birthDate);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/author/delete/{id}")
     public ResponseEntity<String> deleteAuthorById(@PathVariable long id) {
-        try {
-            authorService.deleteAuthorById(id);
-        } catch (IdNotFoundException exception) {
-            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        authorService.deleteAuthorById(id);
         return ResponseEntity.ok().build();
     }
 
@@ -51,24 +38,13 @@ public class AuthorController {
                                   @RequestParam(name = "firstName", required = false) String firstName,
                                   @RequestParam(name = "lastName", required = false) String lastName,
                                   @RequestParam(name = "birthDate", required = false) String birthDate) {
-        try {
-            authorService.updateAuthorById(id, firstName, lastName, birthDate);
-        } catch (InvalidStringException | InvalidDateException exception) {
-            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (IdNotFoundException exception) {
-            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        authorService.updateAuthorById(id, firstName, lastName, birthDate);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/author/get/{id}")
     public ResponseEntity<String> getAuthorById(@PathVariable long id) {
-        Optional<Author> author;
-        try {
-            author = authorService.getAuthorById(id);
-        } catch (IdNotFoundException exception) {
-            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        Author author = authorService.getAuthorById(id).get();
         return new ResponseEntity<String>(author.toString(), HttpStatus.OK);
     }
 

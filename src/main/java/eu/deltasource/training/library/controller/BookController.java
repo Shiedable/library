@@ -1,6 +1,5 @@
 package eu.deltasource.training.library.controller;
 
-import eu.deltasource.training.library.exceptions.*;
 import eu.deltasource.training.library.model.Book;
 import eu.deltasource.training.library.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,23 +25,13 @@ public class BookController {
                                   @RequestParam String pd,
                                   @RequestParam String isbn,
                                   @RequestParam double price) {
-        try {
-            bookService.addBook(title, pd, isbn, price);
-        } catch (NegativeNumberException | InvalidStringException | InvalidDateException | NegativeIdException exception) {
-            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (IdNotFoundException exception) {
-            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        bookService.addBook(title, pd, isbn, price);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/book/delete/{id}")
     public ResponseEntity<String> deleteBookById(@PathVariable long id) {
-        try {
-            bookService.deleteBookById(id);
-        } catch (IdNotFoundException exception) {
-            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        bookService.deleteBookById(id);
         return ResponseEntity.ok().build();
     }
 
@@ -52,25 +41,13 @@ public class BookController {
                                  @RequestParam(required = false) String pd,
                                  @RequestParam(required = false) String isbn,
                                  @RequestParam(required = false) double price) {
-        try {
-            bookService.updateBookById(id, title, pd, isbn, price);
-        } catch (NegativeNumberException | InvalidStringException | InvalidDateException |
-                 NegativeIdException exception) {
-            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (IdNotFoundException exception) {
-            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        bookService.updateBookById(id, title, pd, isbn, price);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/book/get/{id}")
     public ResponseEntity<String> getBookById(@PathVariable long id) {
-        Optional<Book> book;
-        try {
-            book = bookService.getBookById(id);
-        } catch (IdNotFoundException exception) {
-            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        Book book = bookService.getBookById(id).get();
         return new ResponseEntity<String>(book.toString(), HttpStatus.OK);
     }
 

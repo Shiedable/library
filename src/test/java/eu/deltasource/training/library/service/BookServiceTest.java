@@ -161,7 +161,7 @@ public class BookServiceTest {
         //When
 
         //Then
-        assertThrows(IdNotFoundException.class, () -> bookService.deleteBookById(bookId));
+        assertThrows(EntityNotFoundException.class, () -> bookService.deleteBookById(bookId));
     }
 
     //UPDATE RELATED TESTS
@@ -184,7 +184,7 @@ public class BookServiceTest {
         //When
 
         //Then
-        assertThrows(IdNotFoundException.class, () -> bookService.deleteBookById(bookId));
+        assertThrows(EntityNotFoundException.class, () -> bookService.deleteBookById(bookId));
     }
 
     @Test
@@ -235,7 +235,7 @@ public class BookServiceTest {
         //When
 
         //Then
-        assertThrows(IdNotFoundException.class, () -> bookService.deleteBookById(bookId));
+        assertThrows(EntityNotFoundException.class, () -> bookService.deleteBookById(bookId));
     }
 
     @Test

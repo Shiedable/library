@@ -1,65 +1,156 @@
 package eu.deltasource.training.library.authors;
 
-import eu.deltasource.training.library.controller.AuthorController;
+import eu.deltasource.training.library.model.Author;
+import eu.deltasource.training.library.repository.AuthorsRepository;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.RestTemplate;
 
-//TODO: add hamcrest
-//TODO: do not call the controller directly, instead find a way to do endpoint requests
+import javax.sql.DataSource;
+import java.time.LocalDate;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+
 public class AddingAuthorStepDefinition {
 
     @Autowired
-    private AuthorController authorController;
+    private DataSource src;
+    @LocalServerPort
+    private int p;
 
-    private ResponseEntity<String> actual;
-    private ResponseEntity<String> expected;
+    @Autowired
+    private AuthorsRepository authorsRepository;
 
-    @Given("Having no authors saved in the database")
-    public void havingNoAuthorsSaved() {
-        expected = ResponseEntity.ok().build();
+    private ResponseEntity<String> actualResponse;
+    private ResponseEntity<String> expectedResponse;
+    private String firstName;
+    private String lastName;
+    private String birthDate;
+
+    @Given("^Valid (.*), (.*) and (.*)$")
+    public void validAuthorData(String firstName, String lastName, String birthDate) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.birthDate = birthDate;
     }
 
-    @When("^adding a new Author with valid (.*), (.*) and (.*)$")
-    public void addingNewAuthor(String firstName, String lastName, String birthDate) {
-        actual = authorController.addAuthor(firstName, lastName, birthDate);
+    @When("^adding a new Author$")
+    public void addingNewAuthor() {
+        TestRestTemplate restTemplate = new TestRestTemplate();
+        String url =  constructUrl();
+        actualResponse = restTemplate.exchange(url, HttpMethod.POST, null, String.class);
     }
 
-    @Then("The database should contain that same Author")
-    public void repositoryShouldContainAuthor() {
-        Assertions.assertEquals(expected, actual);
+    @Then("^The database should contain that same Author with id (.*)$")
+    public void databaseShouldContainAuthor(long id) {
+        Author actual = authorsRepository.findById(id).get();
+        assertThat(actual.getFirstName(), is(firstName));
+        assertThat(actual.getLastName(), is(lastName));
+        assertThat(actual.getBirthDate(), is(LocalDate.parse(birthDate)));
     }
 
-    @When("adding a new Author with empty first name")
-    public void addingANewAuthorWithEmptyFirstName() {
-        actual = authorController.addAuthor("","test", "2000-01-01");
+    @Given("^Invalid (.*) and (.*)$")
+    public void invalidFirstNameAndLastName(String firstName, String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.birthDate = "2000-01-01";
+        expectedResponse = new ResponseEntity<>("String cannot be null/empty", HttpStatus.BAD_REQUEST);
     }
 
-    @Then("An error should occur with response for an empty first name")
-    public void anErrorShouldOccur() {
-        Assertions.assertTrue(actual.toString().contains("Empty first name!"));
+    @Given("^Invalid birthdate - (.*)$")
+    public void invalidBirthDate(String birthDate) {
+        this.firstName = "test";
+        this.lastName = "test";
+        this.birthDate = birthDate;
+        expectedResponse = new ResponseEntity<>("Date cannot be null/empty", HttpStatus.BAD_REQUEST);
     }
 
-    @When("adding a new Author with empty last name")
-    public void addingANewAuthorWithEmptyLastName() {
-        actual = authorController.addAuthor("test", "", "2000-01-01");
+    @Given("Invalid birthDate format")
+    public void invalidBirthDateFormat() {
+        this.firstName = "test";
+        this.lastName = "test";
+        this.birthDate = "20-12-2000";
+        expectedResponse = new ResponseEntity<>("Date format is invalid", HttpStatus.BAD_REQUEST);
     }
 
-    @Then("An error should occur with response for an empty last name")
-    public void anErrorShouldOccurWithResponseForAnEmptyLastName() {
-        Assertions.assertTrue(actual.toString().contains("Empty last name!"));
+    @Then("^We should be getting an appropriate response$")
+    public void weShouldBeGettingAnAppropriateResponse() {
+        assertThat(actualResponse.getStatusCode(), is(expectedResponse.getStatusCode()));
+        assertThat(actualResponse.getBody(), is(expectedResponse.getBody()));
     }
 
-    @When("adding a new Author with empty birth date")
-    public void addingANewAuthorWithEmptyBirthDate() {
-        actual = authorController.addAuthor("test", "test", "");
+
+
+    private String constructUrl() {
+        String ADD_AUTHOR_BASE_URL = "http://localhost:8080/author/add?";
+        StringBuilder url = new StringBuilder(ADD_AUTHOR_BASE_URL);
+        String firstNamePart = constructFirstName();
+        if (firstNamePart != null) {
+            url.append(firstNamePart);
+        }
+        String lastNamePart = constructLastName();
+        if (lastNamePart != null) {
+            url.append(lastNamePart);
+        }
+        String birthDatePart = constructBirthDate();
+        if (birthDatePart != null) {
+            url.append(birthDatePart);
+        }
+        return url.toString();
     }
 
-    @Then("An error should occur with response for an empty birth date")
-    public void anErrorShouldOccurWithResponseForAnEmptyBirthDate() {
-        Assertions.assertTrue(actual.toString().contains("Birth date is empty!"));
+    private String constructFirstName() {
+        StringBuilder firstNameParam = new StringBuilder();
+        if (firstName.equals("empty")) {
+            return firstNameParam.append("firstName=&")
+                    .toString();
+        }
+        if (firstName.equals("null")) {
+            return  null;
+        }
+        return firstNameParam.append("firstName=")
+                .append(firstName)
+                .append("&")
+                .toString();
+    }
+
+    private String constructLastName() {
+        StringBuilder lastNameParam = new StringBuilder();
+        if (lastName.equals("empty")) {
+            return lastNameParam.append("lastName=&")
+                    .toString();
+        }
+        if (lastName.equals("null")) {
+            return  null;
+        }
+        return lastNameParam.append("lastName=")
+                .append(lastName)
+                .append("&")
+                .toString();
+    }
+
+    private String constructBirthDate() {
+        StringBuilder birthDateParam = new StringBuilder();
+        if (birthDate.equals("empty")) {
+            return birthDateParam.append("birthDate=")
+                    .toString();
+        }
+        if (birthDate.equals("null")) {
+            return null;
+        }
+        return birthDateParam.append("birthDate=")
+                .append(birthDate)
+                .append("&")
+                .toString();
     }
 }

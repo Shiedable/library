@@ -34,19 +34,19 @@ public class AuthorService {
     }
 
     public void deleteAuthorById(long id) {
-        validateId(id, authors);
+        validateEntityExistence(id, authors);
         authors.deleteById(id);
     }
 
     public void updateAuthorById(long id, String firstName, String lastName, String birthDate) {
-        validateId(id, authors);
+        validateEntityExistence(id, authors);
         Author author = authors.findById(id).get();
         Author updatedAuthor = setUpdatedAuthor(id, author, firstName, lastName, birthDate);
         authors.save(updatedAuthor);
     }
 
     public Optional<Author> getAuthorById(long id) {
-        validateId(id, authors);
+        validateEntityExistence(id, authors);
         return authors.findById(id);
     }
 
@@ -54,6 +54,8 @@ public class AuthorService {
         return (List<Author>) authors.findAll();
     }
 
+    // update author
+    // see if you can refactor this
     private Author setUpdatedAuthor(long id, Author author, String firstName, String lastName, String birthDate) {
         LocalDate birthday;
         if (!hasLength(firstName)) {

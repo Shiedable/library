@@ -1,6 +1,6 @@
 package eu.deltasource.training.library.service;
 
-import eu.deltasource.training.library.exceptions.IdNotFoundException;
+import eu.deltasource.training.library.exceptions.EntityNotFoundException;
 import eu.deltasource.training.library.exceptions.InvalidDateException;
 import eu.deltasource.training.library.exceptions.InvalidStringException;
 import eu.deltasource.training.library.exceptions.NegativeIdException;
@@ -143,7 +143,7 @@ public class AuthorServiceTest {
         //When
 
         //Then
-        assertThrows(IdNotFoundException.class, () -> authorService.deleteAuthorById(authorId));
+        assertThrows(EntityNotFoundException.class, () -> authorService.deleteAuthorById(authorId));
     }
 
     //UPDATE RELATED TESTS
@@ -173,7 +173,7 @@ public class AuthorServiceTest {
         //When
 
         //Then
-        assertThrows(IdNotFoundException.class,
+        assertThrows(EntityNotFoundException.class,
                 () -> authorService.updateAuthorById(authorId, firstName, lastName, birthDate));
     }
 
@@ -215,7 +215,7 @@ public class AuthorServiceTest {
         //When
 
         //Then
-        assertThrows(IdNotFoundException.class, () -> authorService.getAuthorById(authorId));
+        assertThrows(EntityNotFoundException.class, () -> authorService.getAuthorById(authorId));
     }
 
     @Test

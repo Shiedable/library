@@ -4,7 +4,6 @@ import eu.deltasource.training.library.exceptions.*;
 import eu.deltasource.training.library.repository.AuthorsRepository;
 import eu.deltasource.training.library.repository.BooksRepository;
 import eu.deltasource.training.library.repository.SalesRepository;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
@@ -31,7 +30,7 @@ public class Validator {
 
     public static void validateId(long id) {
         if (id < 1) {
-            throw new NegativeIdException("Index should positive");
+            throw new NegativeIdException("Entity ID should positive");
         }
     }
 
@@ -47,24 +46,24 @@ public class Validator {
         }
     }
 
-    public static void validateId(long id, AuthorsRepository repository) {
+    public static void validateEntityExistence(long id, AuthorsRepository repository) {
         validateId(id);
         if(!repository.existsById(id)) {
-            throw new IdNotFoundException("Author with such ID does not exist");
+            throw new EntityNotFoundException("Author with such ID does not exist");
         }
     }
 
-    public static void validateId(long id, BooksRepository repository) {
+    public static void validateEntityExistence(long id, BooksRepository repository) {
         validateId(id);
         if(!repository.existsById(id)) {
-            throw new IdNotFoundException("Book with such ID does not exist");
+            throw new EntityNotFoundException("Book with such ID does not exist");
         }
     }
 
-    public static void validateId(long id, SalesRepository repository) {
+    public static void validateEntityExistence(long id, SalesRepository repository) {
         validateId(id);
         if(!repository.existsById(id)) {
-            throw new IdNotFoundException("Sale with such ID does not exist");
+            throw new EntityNotFoundException("Sale with such ID does not exist");
         }
     }
 }

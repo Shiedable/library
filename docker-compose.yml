@@ -1,0 +1,28 @@
+version: "3"
+services:
+  application:
+    image: library:1.0
+    ports:
+      - "8080:8080"
+    environment:
+      - spring.datasource.url=jdbc:mysql://dbcontainer:3306/lib
+    networks:
+      - library
+    depends_on:
+      - dbcontainer
+
+  dbcontainer:
+    image : mysql:8.0
+    networks:
+      - library
+    environment:
+      - MYSQL_ROOT_PASSWORD=vikteror
+      - MYSQL_DATABASE=lib
+    volumes:
+      - lib_data:/var/lib/mysql
+
+volumes:
+  lib_data:
+
+networks:
+  library:

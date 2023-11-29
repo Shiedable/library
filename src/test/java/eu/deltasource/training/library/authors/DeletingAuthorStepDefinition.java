@@ -1,43 +1,78 @@
 package eu.deltasource.training.library.authors;
 
-import eu.deltasource.training.library.controller.AuthorController;
+import eu.deltasource.training.library.model.Author;
+import eu.deltasource.training.library.repository.AuthorsRepository;
+import eu.deltasource.training.library.EntityManagerHelper;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.RestTemplate;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDate;
+
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DeletingAuthorStepDefinition {
 
     @Autowired
-    private AuthorController authorController;
+    private AuthorsRepository authorsRepository;
+    private ResponseEntity<String> actualResponse;
+    private ResponseEntity<String> expectedResponse;
+    @Autowired
+    private EntityManagerHelper entityManagerHelper;
 
-    private ResponseEntity<String> actual;
+
+    @Before
+    public void initialize() {
+        authorsRepository.deleteAll();
+        entityManagerHelper.resetTableId("authors");
+    }
 
     @Given("The database has an Author")
     public void theDatabaseHasAuthor() {
-        authorController.addAuthor("test", "testov","2000-01-01");
+        authorsRepository.save(new Author(1, "test", "test", LocalDate.parse("2000-01-01")));
     }
 
-    @When("Attempting to delete that Author")
-    public void attemptingToDeleteThatAuthor() {
-        authorController.deleteAuthorById(0);
-        actual = authorController.getAllAuthors();
+    @Given("The database has no Author")
+    public void theDatabaseHasNoAuthor() {
+        authorsRepository.deleteAll();
+        expectedResponse = new ResponseEntity<>("Author with such ID does not exist", HttpStatus.NOT_FOUND);
     }
 
-    @Then("The database should be empty")
+    @Given("Negative id")
+    public void negativeId() {
+        authorsRepository.deleteAll();
+        expectedResponse = new ResponseEntity<>("Entity ID should positive", HttpStatus.BAD_REQUEST);
+    }
+
+    @When("^Attempting to delete Author (.*)$")
+    public void attemptingToDeleteThatAuthor(long authorId) throws IOException {
+        TestRestTemplate restTemplate = new TestRestTemplate();
+        String url =  "http://localhost:8080/author/delete/" + authorId;
+        actualResponse = restTemplate.exchange(url, HttpMethod.DELETE, null, String.class);
+    }
+
+    @Then("The database should not have that Author")
     public void theDatabaseShouldBeEmpty() {
-        Assertions.assertTrue(actual.toString().contains("[]"));
+        assertThat(authorsRepository.count(), is(0L));
     }
 
-    @When("Attempting to delete an Author that does not exist")
-    public void attemptingToDeleteAnAuthorThatDoesNotExist() {
-        actual = authorController.deleteAuthorById(5);
-    }
-
-    @Then("Then an error should occur with a response for Author not existing")
+    @Then("Then an error should occur with an error response")
     public void thenAnErrorShouldOccurWithAResponseForAuthorNotExisting() {
-        Assertions.assertTrue(actual.toString().contains("Author with such ID does not exist"));
+        assertThat(actualResponse.getStatusCode(), is(expectedResponse.getStatusCode()));
+        assertThat(actualResponse.getBody(), is(expectedResponse.getBody()));
     }
 }

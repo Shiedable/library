@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 
-//pojo that represents an author in our system
+//TOdo:pojo that represents an author in our system
 @Entity
 @Table(name="authors")
 public class Author {

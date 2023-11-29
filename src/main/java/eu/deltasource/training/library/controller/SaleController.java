@@ -1,9 +1,5 @@
 package eu.deltasource.training.library.controller;
 
-import eu.deltasource.training.library.exceptions.IdNotFoundException;
-import eu.deltasource.training.library.exceptions.NegativeIdException;
-import eu.deltasource.training.library.exceptions.NegativeNumberException;
-import eu.deltasource.training.library.exceptions.InvalidDateException;
 import eu.deltasource.training.library.model.Sale;
 import eu.deltasource.training.library.service.SaleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 
-import java.util.Optional;
 
 @Controller
 public class SaleController {
@@ -28,23 +23,13 @@ public class SaleController {
     @PostMapping("/sale/add")
     public ResponseEntity<String> addSale(@RequestParam String saleDate,
                                           @RequestParam int quantity) {
-        try {
-            saleService.addSale(saleDate, quantity);
-        } catch (NegativeIdException | NegativeNumberException | InvalidDateException exception) {
-            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (IdNotFoundException exception) {
-            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        saleService.addSale(saleDate, quantity);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/sale/delete/{id}")
     public ResponseEntity<String> deleteSaleById(@PathVariable long id) {
-        try {
-            saleService.deleteSaleById(id);
-        } catch (IdNotFoundException exception) {
-            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        saleService.deleteSaleById(id);
         return ResponseEntity.ok().build();
     }
 
@@ -52,24 +37,13 @@ public class SaleController {
     public ResponseEntity<String> updateSaleById(@PathVariable long id,
                                  @RequestParam(required = false) String saleDate,
                                  @RequestParam(required = false) int quantity) {
-        try {
-            saleService.updateSaleById(id, saleDate, quantity);
-        } catch (NegativeIdException | NegativeNumberException | InvalidDateException exception) {
-            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (IdNotFoundException exception) {
-            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        saleService.updateSaleById(id, saleDate, quantity);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/sale/get/{id}")
     public ResponseEntity<String> getSaleById(@PathVariable long id) {
-        Optional<Sale> sale;
-        try {
-            sale = saleService.getSaleById(id);
-        } catch (IdNotFoundException exception) {
-            return new ResponseEntity<String>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        Sale sale = saleService.getSaleById(id).get();
         return new ResponseEntity<>(sale.toString(), HttpStatus.OK);
     }
 

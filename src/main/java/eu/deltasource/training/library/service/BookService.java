@@ -2,7 +2,6 @@ package eu.deltasource.training.library.service;
 
 import eu.deltasource.training.library.exceptions.InvalidDateException;
 import eu.deltasource.training.library.exceptions.NegativeNumberException;
-import eu.deltasource.training.library.model.Author;
 import eu.deltasource.training.library.model.Book;
 import eu.deltasource.training.library.repository.BooksRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,19 +36,19 @@ public class BookService {
     }
 
     public void deleteBookById(long id) {
-        validateId(id, books);
+        validateEntityExistence(id, books);
         books.deleteById(id);
     }
 
     public void updateBookById(long id, String title, String publicationDate, String isbn, double price) {
-        validateId(id, books);
+        validateEntityExistence(id, books);
         Book book = books.findById(id).get();
         Book updatedBook = setUpdatedAuthor(id, book, title, publicationDate, isbn, price);
         books.save(updatedBook);
     }
 
     public Optional<Book> getBookById(long id) {
-        validateId(id, books);
+        validateEntityExistence(id, books);
         return books.findById(id);
     }
 

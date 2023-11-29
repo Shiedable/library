@@ -1,27 +1,39 @@
 Feature: Adding an author to the database
 
   Scenario Outline: Author is successfully added in the database
-    Given Having no authors saved in the database
-    When adding a new Author with valid <firstName>, <lastName> and <birthDate>
-    Then The database should contain that same Author
+    Given Valid <firstName>, <lastName> and <birthDate>
+    When adding a new Author
+    Then The database should contain that same Author with id 1
 
     Examples:
-      | firstName | lastName  | birthDate  |
-      | Muncho    | Veliki    | 1991-12-12 |
-      | Radka     | Piratkova | 2014-03-15 |
-      | Glupcho   | Vselenski | 2005-05-04 |
+      | id | firstName | lastName  | birthDate  |
+      | 1  | Muncho    | Veliki    | 1991-12-12 |
+      | 2  | Radka     | Piratkova | 2014-03-15 |
+      | 3  | Glupcho   | Vselenski | 2005-05-04 |
 
-  Scenario: Author is not added successfully with empty first name
-    Given Having no authors saved in the database
-    When adding a new Author with empty first name
-    Then An error should occur with response for an empty first name
+  Scenario Outline: Author is not added successfully in the database
+    Given Invalid <firstName> and <lastName>
+    When adding a new Author
+    Then We should be getting an appropriate response
 
-  Scenario: Author is not added successfully with empty last name
-    Given Having no authors saved in the database
-    When adding a new Author with empty last name
-    Then An error should occur with response for an empty last name
+    Examples:
+      | firstName | lastName |
+      | empty     | Veliki   |
+      | null      | Veliki   |
+      | Radka     | empty    |
+      | Radka     | null     |
 
-  Scenario: Author is not added successfully with empty birth date
-    Given Having no authors saved in the database
-    When adding a new Author with empty birth date
-    Then An error should occur with response for an empty birth date
+  Scenario Outline: Author is not added successfully in the database
+    Given Invalid birthdate - <birthDate>
+    When adding a new Author
+    Then We should be getting an appropriate response
+
+    Examples:
+      | birthDate |
+      | empty     |
+      | null      |
+
+  Scenario: Author is not added successfully in the database
+    Given Invalid birthDate format
+    When adding a new Author
+    Then We should be getting an appropriate response

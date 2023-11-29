@@ -33,19 +33,19 @@ public class SaleService {
     }
 
     public void deleteSaleById(long id) {
-        validateId(id, sales);
+        validateEntityExistence(id, sales);
         sales.deleteById(id);
     }
 
     public void updateSaleById(long id, String saleDateString, int quantity) {
-        validateId(id, sales);
+        validateEntityExistence(id, sales);
         Sale sale = sales.findById(id).get();
         Sale updatedSale = setUpdatedSale(id, sale, saleDateString, quantity);
         sales.save(updatedSale);
     }
 
     public Optional<Sale> getSaleById(long id) {
-        validateId(id, sales);
+        validateEntityExistence(id, sales);
         return sales.findById(id);
     }
 
