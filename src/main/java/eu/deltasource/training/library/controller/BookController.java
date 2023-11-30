@@ -22,10 +22,10 @@ public class BookController {
 
     @PostMapping("/book/add")
     public ResponseEntity<String> addBook(@RequestParam String title,
-                                  @RequestParam String pd,
+                                  @RequestParam String publicationDate,
                                   @RequestParam String isbn,
                                   @RequestParam double price) {
-        bookService.addBook(title, pd, isbn, price);
+        bookService.addBook(title, publicationDate, isbn, price);
         return ResponseEntity.ok().build();
     }
 
@@ -38,10 +38,10 @@ public class BookController {
     @PutMapping("/book/update/{id}")
     public ResponseEntity<String> updateBookById(@PathVariable long id,
                                  @RequestParam(required = false) String title,
-                                 @RequestParam(required = false) String pd,
+                                 @RequestParam(required = false) String publicationDate,
                                  @RequestParam(required = false) String isbn,
-                                 @RequestParam(required = false) double price) {
-        bookService.updateBookById(id, title, pd, isbn, price);
+                                 @RequestParam(required = false) Optional<Double> price) {
+        bookService.updateBookById(id, title, publicationDate, isbn, price);
         return ResponseEntity.ok().build();
     }
 

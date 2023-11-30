@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
+@Table(name="sales")
 public class Sale {
 
     @Id
@@ -22,19 +23,20 @@ public class Sale {
     public Sale() {
     }
 
-    public Sale(LocalDate saleDate, int quantity) {
+    public Sale(LocalDate saleDate, int quantity, Book book) {
         this.saleDate = saleDate;
         this.quantity = quantity;
+        this.book = book;
     }
 
-    public Sale(long saleId, LocalDate saleDate, int quantity) {
-        this(saleDate, quantity);
+    public Sale(long saleId, LocalDate saleDate, int quantity, Book book) {
+        this(saleDate, quantity, book);
         this.saleId = saleId;
     }
 
     @Override
     public String toString() {
-        return  book + ": " + saleDate + ", x" + quantity;
+        return saleDate + "    " +  book + ": " + saleDate + ", x" + quantity;
     }
 
     public LocalDate getSaleDate() {
@@ -43,5 +45,9 @@ public class Sale {
 
     public int getQuantity() {
         return quantity;
+    }
+
+    public Book getBook() {
+        return book;
     }
 }

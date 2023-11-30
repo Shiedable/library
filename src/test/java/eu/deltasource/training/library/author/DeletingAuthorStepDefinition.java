@@ -1,4 +1,4 @@
-package eu.deltasource.training.library.authors;
+package eu.deltasource.training.library.author;
 
 import eu.deltasource.training.library.model.Author;
 import eu.deltasource.training.library.repository.AuthorsRepository;
@@ -11,15 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.DefaultResponseErrorHandler;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDate;
 
 import static org.hamcrest.core.Is.is;
@@ -55,7 +49,7 @@ public class DeletingAuthorStepDefinition {
     @Given("Negative id")
     public void negativeId() {
         authorsRepository.deleteAll();
-        expectedResponse = new ResponseEntity<>("Entity ID should positive", HttpStatus.BAD_REQUEST);
+        expectedResponse = new ResponseEntity<>("Entity ID should be positive", HttpStatus.BAD_REQUEST);
     }
 
     @When("^Attempting to delete Author (.*)$")

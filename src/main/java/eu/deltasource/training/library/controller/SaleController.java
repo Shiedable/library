@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
 
 
 @Controller
@@ -22,8 +23,9 @@ public class SaleController {
 
     @PostMapping("/sale/add")
     public ResponseEntity<String> addSale(@RequestParam String saleDate,
-                                          @RequestParam int quantity) {
-        saleService.addSale(saleDate, quantity);
+                                          @RequestParam Optional<Integer> quantity,
+                                          @RequestParam Long bookId) {
+        saleService.addSale(saleDate, quantity, bookId);
         return ResponseEntity.ok().build();
     }
 
@@ -36,8 +38,9 @@ public class SaleController {
     @PutMapping("/sale/update/{id}")
     public ResponseEntity<String> updateSaleById(@PathVariable long id,
                                  @RequestParam(required = false) String saleDate,
-                                 @RequestParam(required = false) int quantity) {
-        saleService.updateSaleById(id, saleDate, quantity);
+                                 @RequestParam(required = false) Optional<Integer> quantity,
+                                 @RequestParam(required = false) Long bookId) {
+        saleService.updateSaleById(id, saleDate, quantity, bookId);
         return ResponseEntity.ok().build();
     }
 

@@ -26,21 +26,22 @@ public class BookService {
         books = booksRepository;
     }
 
-    public void addBook(String title, String publicationDate, String isbn, double price) {
+    public void addBook(String title, String publicationDate, String isbn, Double price) {
         validateString(title);
         validateDate(publicationDate);
         validateString(isbn);
-        validateNumber(price);
+        validateNumber(Optional.of(price));
         Book book = new Book(title, LocalDate.parse(publicationDate), isbn, price);
         books.save(book);
     }
+
 
     public void deleteBookById(long id) {
         validateEntityExistence(id, books);
         books.deleteById(id);
     }
 
-    public void updateBookById(long id, String title, String publicationDate, String isbn, double price) {
+    public void updateBookById(long id, String title, String publicationDate, String isbn, Optional<Double> price) {
         validateEntityExistence(id, books);
         Book book = books.findById(id).get();
         Book updatedBook = setUpdatedAuthor(id, book, title, publicationDate, isbn, price);
@@ -56,8 +57,9 @@ public class BookService {
         return (List<Book>) books.findAll();
     }
 
-    private Book setUpdatedAuthor(long id, Book book, String title, String publicationDateString, String isbn, double price) {
+    private Book setUpdatedAuthor(long id, Book book, String title, String publicationDateString, String isbn, Optional<Double> price) {
         LocalDate publicationDate;
+        Double priceParam = null;
         if (!hasLength(title)) {
             title = book.getTitle();
         }
@@ -73,11 +75,15 @@ public class BookService {
                 throw new InvalidDateException("Date format is invalid");
             }
         }
-        if (price < 0) {
-            throw new NegativeNumberException("price should be positive");
-        } else if (price == 0) {
-            price = book.getPrice();
+        if (price.isPresent()) {
+            if (price.get() < 0) {
+                throw new NegativeNumberException("price should be positive");
+            } else {
+                priceParam = price.get();
+            }
+        } else {
+            priceParam = book.getPrice();
         }
-        return new Book(id, title, publicationDate, isbn, price);
+        return new Book(id, title, publicationDate, isbn, priceParam);
     }
 }

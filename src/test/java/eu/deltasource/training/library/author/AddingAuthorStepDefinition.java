@@ -1,4 +1,4 @@
-package eu.deltasource.training.library.authors;
+package eu.deltasource.training.library.author;
 
 import eu.deltasource.training.library.model.Author;
 import eu.deltasource.training.library.repository.AuthorsRepository;
@@ -7,26 +7,16 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.DefaultResponseErrorHandler;
-import org.springframework.web.client.RestTemplate;
 
-import javax.sql.DataSource;
 import java.time.LocalDate;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 public class AddingAuthorStepDefinition {
-
-    @Autowired
-    private DataSource src;
-    @LocalServerPort
-    private int p;
 
     @Autowired
     private AuthorsRepository authorsRepository;
@@ -52,27 +42,59 @@ public class AddingAuthorStepDefinition {
     }
 
     @Then("^The database should contain that same Author with id (.*)$")
-    public void databaseShouldContainAuthor(long id) {
-        Author actual = authorsRepository.findById(id).get();
+    public void databaseShouldContainAuthor(long authorId) {
+        Author actual = authorsRepository.findById(authorId).get();
         assertThat(actual.getFirstName(), is(firstName));
         assertThat(actual.getLastName(), is(lastName));
         assertThat(actual.getBirthDate(), is(LocalDate.parse(birthDate)));
     }
 
-    @Given("^Invalid (.*) and (.*)$")
-    public void invalidFirstNameAndLastName(String firstName, String lastName) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    @Given("^Empty first name$")
+    public void emptyFirstName() {
+        this.firstName = "empty";
+        this.lastName = "testov";
         this.birthDate = "2000-01-01";
         expectedResponse = new ResponseEntity<>("String cannot be null/empty", HttpStatus.BAD_REQUEST);
     }
 
-    @Given("^Invalid birthdate - (.*)$")
-    public void invalidBirthDate(String birthDate) {
+    @Given("^No first name$")
+    public void noFirstName() {
+        this.firstName = "null";
+        this.lastName = "testov";
+        this.birthDate = "2000-01-01";
+        expectedResponse = new ResponseEntity<>("firstName cannot be null/empty", HttpStatus.BAD_REQUEST);
+    }
+
+    @Given("^Empty last name$")
+    public void emptyLastName() {
+        this.firstName = "test";
+        this.lastName = "empty";
+        this.birthDate = "2000-01-01";
+        expectedResponse = new ResponseEntity<>("String cannot be null/empty", HttpStatus.BAD_REQUEST);
+    }
+
+    @Given("^No last name$")
+    public void noLastName() {
+        this.firstName = "test";
+        this.lastName = "null";
+        this.birthDate = "2000-01-01";
+        expectedResponse = new ResponseEntity<>("lastName cannot be null/empty", HttpStatus.BAD_REQUEST);
+    }
+
+    @Given("^Empty birthdate$")
+    public void emptyBirthDate() {
         this.firstName = "test";
         this.lastName = "test";
-        this.birthDate = birthDate;
+        this.birthDate = "empty";
         expectedResponse = new ResponseEntity<>("Date cannot be null/empty", HttpStatus.BAD_REQUEST);
+    }
+
+    @Given("^No birthdate$")
+    public void noBirthDate() {
+        this.firstName = "test";
+        this.lastName = "test";
+        this.birthDate = "null";
+        expectedResponse = new ResponseEntity<>("birthDate cannot be null/empty", HttpStatus.BAD_REQUEST);
     }
 
     @Given("Invalid birthDate format")

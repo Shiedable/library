@@ -11,27 +11,35 @@ Feature: Adding an author to the database
       | 2  | Radka     | Piratkova | 2014-03-15 |
       | 3  | Glupcho   | Vselenski | 2005-05-04 |
 
-  Scenario Outline: Author is not added successfully in the database
-    Given Invalid <firstName> and <lastName>
+  Scenario: Author is not added successfully in the database
+    Given Empty first name
     When adding a new Author
     Then We should be getting an appropriate response
 
-    Examples:
-      | firstName | lastName |
-      | empty     | Veliki   |
-      | null      | Veliki   |
-      | Radka     | empty    |
-      | Radka     | null     |
-
-  Scenario Outline: Author is not added successfully in the database
-    Given Invalid birthdate - <birthDate>
+  Scenario: Author is not added successfully in the database
+    Given No first name
     When adding a new Author
     Then We should be getting an appropriate response
 
-    Examples:
-      | birthDate |
-      | empty     |
-      | null      |
+  Scenario: Author is not added successfully in the database
+    Given Empty last name
+    When adding a new Author
+    Then We should be getting an appropriate response
+
+  Scenario: Author is not added successfully in the database
+    Given No last name
+    When adding a new Author
+    Then We should be getting an appropriate response
+
+  Scenario: Author is not added successfully in the database
+    Given Empty birthdate
+    When adding a new Author
+    Then We should be getting an appropriate response
+
+  Scenario: Author is not added successfully in the database
+    Given No birthdate
+    When adding a new Author
+    Then We should be getting an appropriate response
 
   Scenario: Author is not added successfully in the database
     Given Invalid birthDate format

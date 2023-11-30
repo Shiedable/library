@@ -12,10 +12,10 @@ Feature: Getting Author information
 
   Scenario: Getting information for an Author that does not exist
     Given The database has no Author record
-    When Attempting to get the information for an Author
-    Then We should be getting an appropriate response
+    When Attempting to get the information for Author 99
+    Then We should be getting Entity ID error response
 
   Scenario: Getting information for an Author using negative id
-    Given The database has no Author record
-    When Attempting to get the information for an Author
-    Then We should be getting an appropriate response
+    Given The database has 0 Authors
+    When Attempting to get the information for Author -1
+    Then We should be getting Entity ID error response

@@ -6,6 +6,7 @@ import eu.deltasource.training.library.repository.BooksRepository;
 import eu.deltasource.training.library.repository.SalesRepository;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.Optional;
 
 import static org.springframework.util.StringUtils.hasLength;
 
@@ -30,21 +31,16 @@ public class Validator {
 
     public static void validateId(long id) {
         if (id < 1) {
-            throw new NegativeIdException("Entity ID should positive");
+            throw new NegativeIdException("Entity ID should be positive");
         }
     }
 
-    public static void validateNumber(int number) {
-        if (number < 1) {
+    public static void validateNumber(Optional<Double> number) {
+        if (number.get() < 1) {
             throw new NegativeNumberException("Number should be positive");
         }
     }
 
-    public static void validateNumber(double number) {
-        if (number < 1) {
-            throw new NegativeNumberException("Number should be positive");
-        }
-    }
 
     public static void validateEntityExistence(long id, AuthorsRepository repository) {
         validateId(id);

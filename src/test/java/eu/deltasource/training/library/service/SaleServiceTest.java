@@ -10,6 +10,7 @@ import org.mockito.Mockito;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -32,48 +33,48 @@ public class SaleServiceTest {
     public void givenEmptyStringSaleDate_WhenAddingSale_ThenThrowInvalidDateException() {
         //Given
         String saleDateString = "";
-        int quantity = 10;
+        Optional<Integer> quantity = Optional.of(10);
 
         //When
 
         //Then
-        assertThrows(InvalidDateException.class, () -> saleService.addSale(saleDateString, quantity));
+        assertThrows(InvalidDateException.class, () -> saleService.addSale(saleDateString, quantity, null));
     }
 
     @Test
     public void givenNullStringSaleDate_WhenAddingSale_ThenThrowInvalidDateException() {
         //Given
         String saleDateString = null;
-        int quantity = 10;
+        Optional<Integer> quantity = Optional.of(10);
 
         //When
 
         //Then
-        assertThrows(InvalidDateException.class, () -> saleService.addSale(saleDateString, quantity));
+        assertThrows(InvalidDateException.class, () -> saleService.addSale(saleDateString, quantity, null));
     }
 
     @Test
     public void givenInvalidStringSaleDate_WhenAddingSale_ThenThrowInvalidDateException() {
         //Given
         String saleDateString = "ima li prodajbi";
-        int quantity = 10;
+        Optional<Integer> quantity = Optional.of(10);
 
         //When
 
         //Then
-        assertThrows(InvalidDateException.class, () -> saleService.addSale(saleDateString, quantity));
+        assertThrows(InvalidDateException.class, () -> saleService.addSale(saleDateString, quantity, null));
     }
 
     @Test
     public void givenNegativeQuantity_WhenAddingSale_ThenThrowNegativeNumberException() {
         //Given
         String saleDateString = "2000-01-01";
-        int quantity = -10;
+        Optional<Integer> quantity = Optional.of(-10);
 
         //When
 
         //Then
-        assertThrows(NegativeNumberException.class, () -> saleService.addSale(saleDateString, quantity));
+        assertThrows(NegativeNumberException.class, () -> saleService.addSale(saleDateString, quantity, null));
     }
 
     //DELETE RELATED TESTS
@@ -126,24 +127,24 @@ public class SaleServiceTest {
     public void givenInvalidStringSaleDate_WhenUpdatingSale_ThenInvalidDateException() {
         //Given
         String saleDateString = "go6o mi e";
-        int quantity = 10;
+        Optional<Integer> quantity = Optional.of(10);
 
         //When
 
         //Then
-        assertThrows(InvalidDateException.class, () -> saleService.addSale(saleDateString, quantity));
+        assertThrows(InvalidDateException.class, () -> saleService.addSale(saleDateString, quantity, null));
     }
 
     @Test
     public void givenNegativeQuantity_WhenUpdatingSale_ThenNegativeNumberException() {
         //Given
         String saleDateString = "2000-01-01";
-        int quantity = -10;
+        Optional<Integer> quantity = Optional.of(-10);
 
         //When
 
         //Then
-        assertThrows(NegativeNumberException.class, () -> saleService.addSale(saleDateString, quantity));
+        assertThrows(NegativeNumberException.class, () -> saleService.addSale(saleDateString, quantity, null));
     }
 
     //READ RELATED TESTS
@@ -185,9 +186,9 @@ public class SaleServiceTest {
     public void givenRepositoryWithSales_WhenGettingAllSales_ThenGetListOfSales() {
         //Given
         List<Sale> saleList = new ArrayList<>();
-        Sale sale1 = new Sale(LocalDate.parse("2000-01-01"), 10);
-        Sale sale2 = new Sale(LocalDate.parse("2000-02-02"), 100);
-        Sale sale3 = new Sale(LocalDate.parse("2000-03-03"), 1000);
+        Sale sale1 = new Sale(LocalDate.parse("2000-01-01"), 10, null);
+        Sale sale2 = new Sale(LocalDate.parse("2000-02-02"), 100, null);
+        Sale sale3 = new Sale(LocalDate.parse("2000-03-03"), 1000, null);
         saleList.add(sale1);
         saleList.add(sale2);
         saleList.add(sale3);

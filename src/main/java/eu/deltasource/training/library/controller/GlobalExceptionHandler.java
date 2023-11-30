@@ -22,12 +22,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<String> badRequestHandler(MissingServletRequestParameterException exception) {
-        if (exception.getMessage().contains("Date")) {
-            return new ResponseEntity<>("Date cannot be null/empty", HttpStatus.BAD_REQUEST);
-        }
-
-        //TODO: use ex.getParam instead of checking
-        return new ResponseEntity<>("String cannot be null/empty", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(exception.getParameterName() + " cannot be null/empty", HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
