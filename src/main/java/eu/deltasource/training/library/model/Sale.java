@@ -1,9 +1,17 @@
 package eu.deltasource.training.library.model;
 
+import eu.deltasource.training.library.exceptions.InvalidAuthorException;
+import eu.deltasource.training.library.exceptions.InvalidSaleException;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
+import static org.springframework.util.StringUtils.hasLength;
+
+/**
+ * This is an entity representing a Sale in our database
+ */
 @Entity
 @Table(name="sales")
 public class Sale {
@@ -23,20 +31,32 @@ public class Sale {
     public Sale() {
     }
 
-    public Sale(LocalDate saleDate, int quantity, Book book) {
-        this.saleDate = saleDate;
-        this.quantity = quantity;
+    public Sale(String saleDate, int quantity, Book book) {
+        setQuantity(quantity);
+        setSaleDate(saleDate);
+        setBook(book);
+    }
+
+    public void setBook(Book book) {
+        if (book == null) {
+            throw new InvalidSaleException("Sale Book cannot be null");
+        }
         this.book = book;
     }
 
-    public Sale(long saleId, LocalDate saleDate, int quantity, Book book) {
-        this(saleDate, quantity, book);
-        this.saleId = saleId;
+    public void setSaleDate(String saleDate) {
+        if (!hasLength(saleDate)) {
+            throw new InvalidSaleException("Sale date cannot be empty");
+        }
+        parseOrThrowDate(saleDate);
     }
 
-    @Override
-    public String toString() {
-        return saleDate + "    " +  book + ": " + saleDate + ", x" + quantity;
+    public void setQuantity(int quantity) {
+        if (quantity > 0) {
+            this.quantity = quantity;
+        } else {
+            throw new InvalidSaleException("Sale quantity cannot be negative");
+        }
     }
 
     public LocalDate getSaleDate() {
@@ -49,5 +69,19 @@ public class Sale {
 
     public Book getBook() {
         return book;
+    }
+
+    @Override
+    public String toString() {
+        return saleId + "    " + saleDate + "    " +  book + ": " + saleDate + ", x" + quantity;
+    }
+
+    private void parseOrThrowDate(String date) {
+        try {
+            this.saleDate = LocalDate.parse(date);
+        } catch (DateTimeParseException exception) {
+            throw new InvalidSaleException("Could not parse Sale date: " + date + " reason: "
+                    + exception.getMessage());
+        }
     }
 }

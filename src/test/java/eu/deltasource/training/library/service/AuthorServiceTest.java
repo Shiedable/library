@@ -1,13 +1,12 @@
 package eu.deltasource.training.library.service;
 
 import eu.deltasource.training.library.exceptions.EntityNotFoundException;
-import eu.deltasource.training.library.exceptions.InvalidDateException;
-import eu.deltasource.training.library.exceptions.InvalidStringException;
-import eu.deltasource.training.library.exceptions.NegativeIdException;
+import eu.deltasource.training.library.exceptions.InvalidAuthorException;
 import eu.deltasource.training.library.model.Author;
-import eu.deltasource.training.library.repository.AuthorsRepository;
+import eu.deltasource.training.library.repository.AuthorRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mockito;
 
 import java.time.LocalDate;
@@ -19,21 +18,20 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AuthorServiceTest {
 
-    private static AuthorService authorService;
-    private static AuthorsRepository mockedAuthorRepository;
+    private AuthorService authorService;
+    private AuthorRepository mockedAuthorRepository;
 
     @BeforeAll
-    public static void initialize() {
-        mockedAuthorRepository = Mockito.mock(AuthorsRepository.class);
+    public void initialize() {
+        mockedAuthorRepository = Mockito.mock(AuthorRepository.class);
         authorService = new AuthorService(mockedAuthorRepository);
     }
 
-
-    //CREATE RELATED TESTS
     @Test
-    public void givenEmptyFirstName_WhenAddingAuthor_ThenThrowInvalidStringException() {
+    public void givenEmptyFirstName_WhenAddingAuthor_ThenThrowInvalidAuthorException() {
         //Given
         String firstName = "";
         String lastName = "testov";
@@ -42,11 +40,11 @@ public class AuthorServiceTest {
         //When
 
         //Then
-        assertThrows(InvalidStringException.class, () -> authorService.addAuthor(firstName, lastName, birthDate));
+        assertThrows(InvalidAuthorException.class, () -> authorService.addAuthor(firstName, lastName, birthDate));
     }
 
     @Test
-    public void givenNullFirstName_WhenAddingAuthor_ThenThrowInvalidStringException() {
+    public void givenNullFirstName_WhenAddingAuthor_ThenThrowInvalidAuthorException() {
         //Given
         String firstName = null;
         String lastName = "testov";
@@ -55,11 +53,11 @@ public class AuthorServiceTest {
         //When
 
         //Then
-        assertThrows(InvalidStringException.class, () -> authorService.addAuthor(firstName, lastName, birthDate));
+        assertThrows(InvalidAuthorException.class, () -> authorService.addAuthor(firstName, lastName, birthDate));
     }
 
     @Test
-    public void givenEmptyLastName_WhenAddingAuthor_ThenThrowInvalidStringException() {
+    public void givenEmptyLastName_WhenAddingAuthor_ThenThrowInvalidAuthorException() {
         //Given
         String firstName = "test";
         String lastName = "";
@@ -68,11 +66,11 @@ public class AuthorServiceTest {
         //When
 
         //Then
-        assertThrows(InvalidStringException.class, () -> authorService.addAuthor(firstName, lastName, birthDate));
+        assertThrows(InvalidAuthorException.class, () -> authorService.addAuthor(firstName, lastName, birthDate));
     }
 
     @Test
-    public void givenNullLastName_WhenAddingAuthor_ThenThrowInvalidStringException() {
+    public void givenNullLastName_WhenAddingAuthor_ThenThrowInvalidAuthorException() {
         //Given
         String firstName = "test";
         String lastName = null;
@@ -81,11 +79,11 @@ public class AuthorServiceTest {
         //When
 
         //Then
-        assertThrows(InvalidStringException.class, () -> authorService.addAuthor(firstName, lastName, birthDate));
+        assertThrows(InvalidAuthorException.class, () -> authorService.addAuthor(firstName, lastName, birthDate));
     }
 
     @Test
-    public void givenEmptyStringBirthDate_WhenAddingAuthor_ThenThrowInvalidDateException() {
+    public void givenEmptyStringBirthDate_WhenAddingAuthor_ThenThrowInvalidAuthorException() {
         //Given
         String firstName = "test";
         String lastName = "testov";
@@ -94,11 +92,11 @@ public class AuthorServiceTest {
         //When
 
         //Then
-        assertThrows(InvalidDateException.class, () -> authorService.addAuthor(firstName, lastName, birthDate));
+        assertThrows(InvalidAuthorException.class, () -> authorService.addAuthor(firstName, lastName, birthDate));
     }
 
     @Test
-    public void givenNullStringBirthDate_WhenAddingAuthor_ThenThrowInvalidDateException() {
+    public void givenNullStringBirthDate_WhenAddingAuthor_ThenThrowInvalidAuthorException() {
         //Given
         String firstName = "test";
         String lastName = "testov";
@@ -107,11 +105,11 @@ public class AuthorServiceTest {
         //When
 
         //Then
-        assertThrows(InvalidDateException.class, () -> authorService.addAuthor(firstName, lastName, birthDate));
+        assertThrows(InvalidAuthorException.class, () -> authorService.addAuthor(firstName, lastName, birthDate));
     }
 
     @Test
-    public void givenInvalidStringBirthDate_WhenAddingAuthor_ThenThrowInvalidDateException() {
+    public void givenInvalidStringBirthDate_WhenAddingAuthor_ThenThrowInvalidAuthorException() {
         //Given
         String firstName = "test";
         String lastName = "testov";
@@ -120,23 +118,22 @@ public class AuthorServiceTest {
         //When
 
         //Then
-        assertThrows(InvalidDateException.class, () -> authorService.addAuthor(firstName, lastName, birthDate));
+        assertThrows(InvalidAuthorException.class, () -> authorService.addAuthor(firstName, lastName, birthDate));
     }
 
-    //DELETE RELATED TESTS
     @Test
-    public void givenNegativeIndex_WhenDeletingAuthor_ThenThrowNegativeIdException() {
+    public void givenNegativeIndex_WhenDeletingAuthor_ThenThrowEntityNotFoundException() {
         //Given
         long authorId = -1;
 
         //When
 
         //Then
-        assertThrows(NegativeIdException.class, () -> authorService.deleteAuthorById(authorId));
+        assertThrows(EntityNotFoundException.class, () -> authorService.deleteAuthorById(authorId));
     }
 
     @Test
-    public void givenIndexThatDoesNotExist_WhenDeletingAuthor_ThenThrowIdNotFoundException() {
+    public void givenIndexThatDoesNotExist_WhenDeletingAuthor_ThenThrowEntityNotFoundException() {
         //Given
         long authorId = 9999;
 
@@ -146,9 +143,8 @@ public class AuthorServiceTest {
         assertThrows(EntityNotFoundException.class, () -> authorService.deleteAuthorById(authorId));
     }
 
-    //UPDATE RELATED TESTS
     @Test
-    public void givenNegativeIndex_WhenUpdatingAuthor_ThenThrowNegativeIdException() {
+    public void givenNegativeIndex_WhenUpdatingAuthor_ThenThrowEntityNotFoundException() {
         //Given
         String firstName = "test";
         String lastName = "testov";
@@ -158,12 +154,12 @@ public class AuthorServiceTest {
         //When
 
         //Then
-        assertThrows(NegativeIdException.class,
+        assertThrows(EntityNotFoundException.class,
                 () -> authorService.updateAuthorById(authorId, firstName, lastName, birthDate));
     }
 
     @Test
-    public void givenIndexThatDoesNotExist_WhenUpdatingAuthor_ThenThrowNegativeIdException() {
+    public void givenIndexThatDoesNotExist_WhenUpdatingAuthor_ThenThrowEntityNotFoundException() {
         //Given
         String firstName = "test";
         String lastName = "testov";
@@ -178,12 +174,12 @@ public class AuthorServiceTest {
     }
 
     @Test
-    public void givenInvalidStringBirthDate_WhenUpdatingAuthor_ThenInvalidDateException() {
+    public void givenInvalidStringBirthDate_WhenUpdatingAuthor_ThenThrowInvalidAuthorException() {
         //Given
         String firstName = "";
         String lastName = "testov";
         String birthDate = "gladen sum";
-        Author savedAuthor = new Author(1, "test", "testov", LocalDate.parse("2000-01-01"));
+        Author savedAuthor = new Author("test", "testov", "2000-01-01");
 
         //When
         Mockito.when(mockedAuthorRepository.existsById((long) 1)).thenReturn(true);
@@ -191,24 +187,23 @@ public class AuthorServiceTest {
                 .thenReturn(Optional.of(savedAuthor));
 
         //Then
-        assertThrows(InvalidDateException.class,
+        assertThrows(InvalidAuthorException.class,
                 () -> authorService.updateAuthorById(1, firstName, lastName, birthDate));
     }
 
-    //READ RELATED TESTS
     @Test
-    public void givenNegativeIndex_WhenGettingAnAuthor_ThenThrowNegativeIdException() {
+    public void givenNegativeIndex_WhenGettingAnAuthor_ThenThrowEntityNotFoundException() {
         //Given
         long authorId = -1;
 
         //When
 
         //Then
-        assertThrows(NegativeIdException.class, () -> authorService.getAuthorById(authorId));
+        assertThrows(EntityNotFoundException.class, () -> authorService.getAuthorById(authorId));
     }
 
     @Test
-    public void givenNonExistentIndex_WhenGettingAnAuthor_ThenThrowIdNotFoundException() {
+    public void givenNonExistentIndex_WhenGettingAnAuthor_ThenThrowEntityNotFoundException() {
         //Given
         long authorId = 9999;
 
@@ -234,9 +229,9 @@ public class AuthorServiceTest {
     public void givenRepositoryWithAuthors_WhenGettingAllAuthors_ThenGetListOfAuthors() {
         //Given
         List<Author> authorList = new ArrayList<>();
-        Author author1 = new Author("test", "testov", LocalDate.parse("2000-01-01"));
-        Author author2 = new Author("pesho", "peshov", LocalDate.parse("2000-02-02"));
-        Author author3 = new Author("go6o", "go6ov", LocalDate.parse("2000-03-03"));
+        Author author1 = new Author("test", "testov", "2000-01-01");
+        Author author2 = new Author("pesho", "peshov", "2000-02-02");
+        Author author3 = new Author("go6o", "go6ov", "2000-03-03");
         authorList.add(author1);
         authorList.add(author2);
         authorList.add(author3);

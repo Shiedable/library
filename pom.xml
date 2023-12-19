@@ -13,7 +13,10 @@
     <artifactId>library</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <name>library-application</name>
-    <description>library from the sql task</description>
+    <description>
+        This is a simple library implementation.
+        It provides CRUD operations on books and their sales/authors.
+    </description>
 
     <properties>
         <java.version>17</java.version>
@@ -24,11 +27,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -112,17 +110,6 @@
             </plugin>
 
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <image>
-                        <builder>paketobuildpacks/builder-jammy-base:latest</builder>
-                    </image>
-                </configuration>
-            </plugin>
-
-
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${maven-failsafe-plugin.version}</version>
@@ -137,7 +124,6 @@
             </plugin>
 
         </plugins>
-        <finalName>library</finalName>
     </build>
 
 </project>

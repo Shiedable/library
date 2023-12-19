@@ -13,14 +13,13 @@ import java.util.Optional;
 @Controller
 public class BookController {
 
-    private BookService bookService;
+    private final BookService bookService;
 
-    @Autowired
     public BookController(BookService bookService) {
         this.bookService = bookService;
     }
 
-    @PostMapping("/book/add")
+    @PostMapping("/book")
     public ResponseEntity<String> addBook(@RequestParam String title,
                                   @RequestParam String publicationDate,
                                   @RequestParam String isbn,
@@ -29,13 +28,13 @@ public class BookController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/book/delete/{id}")
+    @DeleteMapping("/book/{id}")
     public ResponseEntity<String> deleteBookById(@PathVariable long id) {
         bookService.deleteBookById(id);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/book/update/{id}")
+    @PutMapping("/book/{id}")
     public ResponseEntity<String> updateBookById(@PathVariable long id,
                                  @RequestParam(required = false) String title,
                                  @RequestParam(required = false) String publicationDate,
@@ -45,14 +44,14 @@ public class BookController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/book/get/{id}")
+    @GetMapping("/book/{id}")
     public ResponseEntity<String> getBookById(@PathVariable long id) {
         Book book = bookService.getBookById(id).get();
         return new ResponseEntity<String>(book.toString(), HttpStatus.OK);
     }
 
-    @GetMapping("/book/get/all")
+    @GetMapping("/book/get")
     public ResponseEntity<String> getAllBooks() {
-        return new ResponseEntity<String>(bookService.getAllBooks().toString(), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<String>(bookService.getAllBooks().toString(), HttpStatus.OK);
     }
 }

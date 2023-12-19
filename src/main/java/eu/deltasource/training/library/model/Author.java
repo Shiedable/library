@@ -1,11 +1,18 @@
 package eu.deltasource.training.library.model;
 
+import eu.deltasource.training.library.exceptions.InvalidAuthorException;
+import eu.deltasource.training.library.exceptions.InvalidSaleException;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
-//TOdo:pojo that represents an author in our system
+import static org.springframework.util.StringUtils.hasLength;
+
+/**
+ * This is an entity representing an Author in our database
+ */
 @Entity
 @Table(name="authors")
 public class Author {
@@ -33,15 +40,33 @@ public class Author {
 
     }
 
-    public Author(String firstName, String lastName, LocalDate birthDate) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.birthDate = birthDate;
+    public Author(String firstName, String lastName, String birthDate) {
+        setFirstName(firstName);
+        setLastName(lastName);
+        setBirthDate(birthDate);
     }
 
-    public Author(long authorId, String firstName, String lastName, LocalDate birthDate) {
-        this(firstName, lastName, birthDate);
-        this.authorId = authorId;
+    public void setFirstName(String firstName) {
+        if (hasLength(firstName)) {
+            this.firstName = firstName;
+        } else {
+            throw new InvalidAuthorException("Author first name cannot be empty");
+        }
+    }
+
+    public void setLastName(String lastName) {
+        if (hasLength(lastName)) {
+            this.lastName = lastName;
+        } else {
+            throw new InvalidAuthorException("Author last name cannot be empty");
+        }
+    }
+
+    public void setBirthDate(String birthDate) {
+        if (!hasLength(birthDate)) {
+            throw new InvalidAuthorException("Author birth date cannot be empty");
+        }
+        parseOrThrowDate(birthDate);
     }
 
     public long getAuthorId() {
@@ -67,5 +92,14 @@ public class Author {
     @Override
     public String toString() {
         return firstName + " " + lastName + ", birthday=" + birthDate;
+    }
+
+    private void parseOrThrowDate(String date) {
+        try {
+            this.birthDate = LocalDate.parse(date);
+        } catch (DateTimeParseException exception) {
+            throw new InvalidAuthorException("Could not parse Birth date: " + date + " reason: "
+                    + exception.getMessage());
+        }
     }
 }

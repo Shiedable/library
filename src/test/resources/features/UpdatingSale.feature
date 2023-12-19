@@ -5,32 +5,27 @@ Feature: Updating the information saved for a certain Sale
     When Attempting to update the information for Sale 1
     Then The Sale should have been updated
 
-  Scenario: Updating the sale date of a Sale
-    Given Invalid sale date format to be updated
-    When Attempting to update the information for Sale 1
-    Then We should get an error message
-
   Scenario: Updating the quantity of a Sale
     Given Quantity to be updated to 100
     When Attempting to update the information for Sale 1
     Then The Sale should have been updated
 
-  Scenario: Updating the quantity of a Sale
-    Given Invalid quantity to be updated to -100
+  Scenario Outline: Updating the with invalid data
+    Given Invalid Sale Date <saleDate>, Quantity <quantity>
     When Attempting to update the information for Sale 1
-    Then We should get an error message
+    Then We should be getting a response with code <errorCode> and <message> error message
 
-  Scenario: Updating the book of a Sale
-    Given New book to be updated
-    When Attempting to update the information for Sale 1
-    Then The Sale should have been updated
+    Examples:
+      | saleDate   | quantity | errorCode       | message                                                                                        |
+      | 02-02-2000 | 10       | 400 BAD_REQUEST | Could not parse Sale date: 02-02-2000 reason: Text '02-02-2000' could not be parsed at index 0 |
+      | 2000-01-01 | -10      | 400 BAD_REQUEST | Sale quantity cannot be negative                                                               |
 
-  Scenario: Updating a Sale that does not exist
-    Given Empty Sale database
-    When Attempting to update the information for Sale 99
-    Then The Sale should have been updated
+  Scenario Outline: Updating a Sale that does not exist
+    Given The database has a Sale
+    When Attempting to update the information for Sale <id>
+    Then We should be getting a response with code 404 NOT_FOUND and Entity with such ID does not exist error message
 
-  Scenario: Updating information for a Sale using negative id
-    Given The Sale database is empty
-    When Attempting to update the information for Sale -1
-    Then The Sale should have been updated
+    Examples:
+      | id |
+      | 99 |
+      | -1 |

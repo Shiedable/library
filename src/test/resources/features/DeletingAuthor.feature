@@ -5,12 +5,12 @@ Feature: Deleting an Author from the database
     When Attempting to delete Author 1
     Then The database should not have that Author
 
-  Scenario: Attempting to delete an Author which does not exist
-    Given The database has no Author
-    When Attempting to delete Author 99
-    Then Then an error should occur with an error response
+  Scenario Outline: Attempting to delete an Author which does not exist
+    Given The database has an Author
+    When Attempting to delete Author <id>
+    Then We should be getting a response with code 404 NOT_FOUND and Entity with such ID does not exist error message
 
-  Scenario: Attempting to delete an Author using negative Id
-    Given Negative id
-    When Attempting to delete Author -1
-    Then Then an error should occur with an error response
+    Examples:
+    | id |
+    | 99 |
+    | -1 |

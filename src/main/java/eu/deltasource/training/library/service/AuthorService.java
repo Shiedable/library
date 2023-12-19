@@ -1,78 +1,66 @@
 package eu.deltasource.training.library.service;
 
-import eu.deltasource.training.library.exceptions.InvalidDateException;
+import eu.deltasource.training.library.exceptions.EntityNotFoundException;
 import eu.deltasource.training.library.model.Author;
-import eu.deltasource.training.library.repository.AuthorsRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import eu.deltasource.training.library.repository.AuthorRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
-import static eu.deltasource.training.library.validator.Validator.*;
 import static org.springframework.util.StringUtils.hasLength;
 
-
+/**
+ * This is a service handling crud operations for {@link Author}
+ */
 @Service
 public class AuthorService {
 
-    private AuthorsRepository authors;
+    private AuthorRepository authorRepository;
 
-    @Autowired
-    public AuthorService(AuthorsRepository authorsRepository) {
-        authors = authorsRepository;
+    public AuthorService(AuthorRepository authorsRepository) {
+        authorRepository = authorsRepository;
     }
 
     public void addAuthor(String firstName, String lastName, String birthDate) {
-        validateString(firstName);
-        validateString(lastName);
-        validateDate(birthDate);
-        Author author = new Author(firstName, lastName, LocalDate.parse(birthDate));
-        authors.save(author);
+        Author author = new Author(firstName, lastName, birthDate);
+        authorRepository.save(author);
     }
 
     public void deleteAuthorById(long id) {
-        validateEntityExistence(id, authors);
-        authors.deleteById(id);
+        if (authorRepository.existsById(id)) {
+            authorRepository.deleteById(id);
+        } else {
+            throw new EntityNotFoundException("Entity with such ID does not exist");
+        }
     }
 
     public void updateAuthorById(long id, String firstName, String lastName, String birthDate) {
-        validateEntityExistence(id, authors);
-        Author author = authors.findById(id).get();
-        Author updatedAuthor = setUpdatedAuthor(id, author, firstName, lastName, birthDate);
-        authors.save(updatedAuthor);
+        Author author = authorRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Entity with such ID does not exist"));
+        setIfPresent(firstName, author::setFirstName);
+        setIfPresent(lastName, author::setLastName);
+        setIfPresent(birthDate, author::setBirthDate);
+        authorRepository.save(author);
     }
 
     public Optional<Author> getAuthorById(long id) {
-        validateEntityExistence(id, authors);
-        return authors.findById(id);
+        if (authorRepository.existsById(id)) {
+            return authorRepository.findById(id);
+        } else {
+            throw new EntityNotFoundException("Entity with such ID does not exist");
+        }
     }
 
     public List<Author> getAllAuthors() {
-        return (List<Author>) authors.findAll();
+        return authorRepository.findAll();
     }
 
-    // update author
-    // see if you can refactor this
-    private Author setUpdatedAuthor(long id, Author author, String firstName, String lastName, String birthDate) {
-        LocalDate birthday;
-        if (!hasLength(firstName)) {
-            firstName = author.getFirstName();
+    private void setIfPresent(String value, Consumer<String> consumer) {
+        if (hasLength(value)) {
+            consumer.accept(value);
         }
-        if(!hasLength(lastName)) {
-            lastName = author.getLastName();
-        }
-        if (!hasLength(birthDate)) {
-            birthday = author.getBirthDate();
-        } else {
-            try {
-                birthday = LocalDate.parse(birthDate);
-            } catch (DateTimeParseException exception) {
-                throw new InvalidDateException("Date format is invalid");
-            }
-        }
-        return new Author(id, firstName, lastName, birthday);
     }
 }

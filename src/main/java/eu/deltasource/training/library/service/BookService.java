@@ -1,89 +1,71 @@
 package eu.deltasource.training.library.service;
 
-import eu.deltasource.training.library.exceptions.InvalidDateException;
-import eu.deltasource.training.library.exceptions.NegativeNumberException;
+import eu.deltasource.training.library.exceptions.EntityNotFoundException;
 import eu.deltasource.training.library.model.Book;
-import eu.deltasource.training.library.repository.BooksRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import eu.deltasource.training.library.repository.BookRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
-import static eu.deltasource.training.library.validator.Validator.*;
 import static org.springframework.util.StringUtils.hasLength;
 
-
+/**
+ * This is a service handling crud operations for {@link Book}
+ */
 @Service
 public class BookService {
 
-    private BooksRepository books;
+    private BookRepository bookRepository;
 
-    @Autowired
-    public BookService(BooksRepository booksRepository) {
-        books = booksRepository;
+    public BookService(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
     }
 
     public void addBook(String title, String publicationDate, String isbn, Double price) {
-        validateString(title);
-        validateDate(publicationDate);
-        validateString(isbn);
-        validateNumber(Optional.of(price));
-        Book book = new Book(title, LocalDate.parse(publicationDate), isbn, price);
-        books.save(book);
+        Book book = new Book(title, publicationDate, isbn, price);
+        bookRepository.save(book);
     }
 
 
     public void deleteBookById(long id) {
-        validateEntityExistence(id, books);
-        books.deleteById(id);
+        if (bookRepository.existsById(id)) {
+            bookRepository.deleteById(id);
+        } else {
+            throw new EntityNotFoundException("Entity with such ID does not exist");
+        }
     }
 
     public void updateBookById(long id, String title, String publicationDate, String isbn, Optional<Double> price) {
-        validateEntityExistence(id, books);
-        Book book = books.findById(id).get();
-        Book updatedBook = setUpdatedAuthor(id, book, title, publicationDate, isbn, price);
-        books.save(updatedBook);
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Entity with such ID does not exist"));
+        setIfPresent(title, book::setTitle);
+        setIfPresent(publicationDate, book::setPublicationDate);
+        setIfPresent(isbn, book::setIsbn);
+        setIfPresent(price, book::setPrice);
+        bookRepository.save(book);
     }
 
     public Optional<Book> getBookById(long id) {
-        validateEntityExistence(id, books);
-        return books.findById(id);
+        if (bookRepository.existsById(id)) {
+            return bookRepository.findById(id);
+        } else {
+            throw new EntityNotFoundException("Entity with such ID does not exist");
+        }
     }
 
     public List<Book> getAllBooks() {
-        return (List<Book>) books.findAll();
+        return bookRepository.findAll();
     }
 
-    private Book setUpdatedAuthor(long id, Book book, String title, String publicationDateString, String isbn, Optional<Double> price) {
-        LocalDate publicationDate;
-        Double priceParam = null;
-        if (!hasLength(title)) {
-            title = book.getTitle();
+    private void setIfPresent(String value, Consumer<String> consumer) {
+        if (hasLength(value)) {
+            consumer.accept(value);
         }
-        if (!hasLength(isbn)) {
-            isbn = book.getIsbn();
-        }
-        if (!hasLength(publicationDateString)) {
-            publicationDate = book.getPublicationDate();
-        } else {
-            try {
-                publicationDate = LocalDate.parse(publicationDateString);
-            } catch (DateTimeParseException exception) {
-                throw new InvalidDateException("Date format is invalid");
-            }
-        }
-        if (price.isPresent()) {
-            if (price.get() < 0) {
-                throw new NegativeNumberException("price should be positive");
-            } else {
-                priceParam = price.get();
-            }
-        } else {
-            priceParam = book.getPrice();
-        }
-        return new Book(id, title, publicationDate, isbn, priceParam);
+    }
+
+    private void setIfPresent(Optional<Double> value, Consumer<Double> consumer) {
+        value.ifPresent(consumer);
     }
 }

@@ -1,10 +1,19 @@
 package eu.deltasource.training.library.model;
 
+import eu.deltasource.training.library.exceptions.InvalidAuthorException;
+import eu.deltasource.training.library.exceptions.InvalidBookException;
+import eu.deltasource.training.library.exceptions.InvalidSaleException;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
+import static org.springframework.util.StringUtils.hasLength;
+
+/**
+ * This is an entity representing a Book in our database
+ */
 @Entity
 @Table(name="books")
 public class Book {
@@ -36,16 +45,42 @@ public class Book {
     public Book() {
     }
 
-    public Book(String title, LocalDate publicationDate, String isbn, double price) {
-        this.title = title;
-        this.publicationDate = publicationDate;
-        this.isbn = isbn;
-        this.price = price;
+    public Book(String title, String publicationDate, String isbn, double price) {
+        setTitle(title);
+        setPublicationDate(publicationDate);
+        setIsbn(isbn);
+        setPrice(price);
     }
 
-    public Book(long bookId, String title, LocalDate publicationDate, String isbn, double price) {
-        this(title, publicationDate, isbn, price);
-        this.bookId = bookId;
+    public void setTitle(String title)   {
+        if (hasLength(title)) {
+            this.title = title;
+        } else {
+            throw new InvalidBookException("Book title cannot be empty");
+        }
+    }
+
+    public void setPublicationDate(String publicationDate) {
+        if (!hasLength(publicationDate)) {
+            throw new InvalidBookException("Book publication date cannot be empty");
+        }
+        parseOrThrowDate(publicationDate);
+    }
+
+    public void setIsbn(String isbn) {
+        if (hasLength(isbn)) {
+            this.isbn = isbn;
+        } else {
+            throw new InvalidBookException("Book ISBN cannot be empty");
+        }
+    }
+
+    public void setPrice(double price) {
+        if (price > 0.0) {
+            this.price = price;
+        } else {
+            throw new InvalidBookException("Book price cannot be negative");
+        }
     }
 
     public long getBookId() {
@@ -79,5 +114,14 @@ public class Book {
     @Override
     public String toString() {
         return title + ", "  + publicationDate + " | " + isbn + " | " + price + "$";
+    }
+
+    private void parseOrThrowDate(String date) {
+        try {
+            this.publicationDate = LocalDate.parse(date);
+        } catch (DateTimeParseException exception) {
+            throw new InvalidBookException("Could not parse Publication date: " + date + " reason: "
+                    + exception.getMessage());
+        }
     }
 }

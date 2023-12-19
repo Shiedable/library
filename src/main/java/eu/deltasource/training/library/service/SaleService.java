@@ -1,89 +1,77 @@
 package eu.deltasource.training.library.service;
 
-import eu.deltasource.training.library.exceptions.InvalidDateException;
-import eu.deltasource.training.library.exceptions.NegativeNumberException;
+import eu.deltasource.training.library.exceptions.EntityNotFoundException;
 import eu.deltasource.training.library.model.Book;
 import eu.deltasource.training.library.model.Sale;
-import eu.deltasource.training.library.repository.SalesRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import eu.deltasource.training.library.repository.SaleRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
-import static eu.deltasource.training.library.validator.Validator.*;
 import static org.springframework.util.StringUtils.hasLength;
 
+/**
+ * This is a service handling crud operations for {@link Sale}
+ */
 @Service
 public class SaleService {
 
-    private SalesRepository sales;
-    @Autowired
-    private BookService bookService;
+    private final SaleRepository saleRepository;
+    private final BookService bookService;
 
-    @Autowired
-    public SaleService(SalesRepository salesRepository) {
-        sales = salesRepository;
+    public SaleService(SaleRepository saleRepository, BookService bookService) {
+        this.saleRepository = saleRepository;
+        this.bookService = bookService;
     }
 
     public void addSale(String saleDate, Optional<Integer> quantity, Long bookId) {
-        validateDate(saleDate);
-        validateNumber(Optional.of(Double.valueOf(quantity.get())));
         Book book = bookService.getBookById(bookId).get();
-        Sale sale = new Sale(LocalDate.parse(saleDate), quantity.get(), book);
-        sales.save(sale);
+        Sale sale = new Sale(saleDate, quantity.get(), book);
+        saleRepository.save(sale);
     }
 
     public void deleteSaleById(long id) {
-        validateEntityExistence(id, sales);
-        sales.deleteById(id);
+        if (saleRepository.existsById(id)) {
+            saleRepository.deleteById(id);
+        } else {
+            throw new EntityNotFoundException("Entity with such ID does not exist");
+        }
     }
 
     public void updateSaleById(long id, String saleDateString, Optional<Integer> quantity, Long bookId) {
-        validateEntityExistence(id, sales);
-        Sale sale = sales.findById(id).get();
-        Sale updatedSale = setUpdatedSale(id, sale, saleDateString, quantity, bookId);
-        sales.save(updatedSale);
+        Sale sale = saleRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Entity with such ID does not exist"));
+        Optional<Book> book = bookService.getBookById(id);
+        setIfPresent(saleDateString, sale::setSaleDate);
+        setIfPresent(quantity, book, sale::setQuantity, sale::setBook);
+        saleRepository.save(sale);
     }
 
     public Optional<Sale> getSaleById(long id) {
-        validateEntityExistence(id, sales);
-        return sales.findById(id);
+        if (saleRepository.existsById(id)) {
+            return saleRepository.findById(id);
+        } else {
+            throw new EntityNotFoundException("Entity with such ID does not exist");
+        }
     }
 
     public List<Sale> getAllSales() {
-        return (List<Sale>) sales.findAll();
+        return saleRepository.findAll();
     }
 
-    private Sale setUpdatedSale(long id, Sale sale, String saleDateString, Optional<Integer> quantity, Long bookId) {
-        LocalDate saleDate;
-        int quantityParam;
-        Book book;
-        if (!hasLength(saleDateString)) {
-            saleDate = sale.getSaleDate();
-        } else {
-            try {
-                saleDate = LocalDate.parse(saleDateString);
-            } catch (DateTimeParseException exception) {
-                throw new InvalidDateException("Date format is invalid");
-            }
+    private void setIfPresent(String value, Consumer<String> consumer) {
+        if (hasLength(value)) {
+            consumer.accept(value);
         }
-        if (quantity.isPresent()) {
-            if (quantity.get() < 0) {
-                throw new NegativeNumberException("quantity should be positive");
-            } else {
-                quantityParam = quantity.get();
-            }
-        } else {
-            quantityParam = sale.getQuantity();
-        }
-        if (bookId != null) {
-            book = bookService.getBookById(bookId).get();
-        } else {
-            book = sales.findById(id).get().getBook();
-        }
-        return new Sale(id, saleDate, quantityParam, book);
+    }
+
+    private void setIfPresent(Optional<Integer> value,
+                              Optional<Book> book,
+                              Consumer<Integer> consumer,
+                              Consumer<Book> bookConsumer) {
+        value.ifPresent(consumer);
+        book.ifPresent(bookConsumer);
     }
 }

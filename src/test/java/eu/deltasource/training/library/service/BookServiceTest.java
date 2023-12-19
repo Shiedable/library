@@ -2,35 +2,36 @@ package eu.deltasource.training.library.service;
 
 import eu.deltasource.training.library.exceptions.*;
 import eu.deltasource.training.library.model.Book;
-import eu.deltasource.training.library.repository.BooksRepository;
+import eu.deltasource.training.library.repository.BookRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mockito;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BookServiceTest {
 
 
-    private static BookService bookService;
-    private static BooksRepository mockedBookRepository;
+    private BookService bookService;
+    private BookRepository mockedBookRepository;
 
     @BeforeAll
-    public static void initialize() {
-        mockedBookRepository = Mockito.mock(BooksRepository.class);
+    public void initialize() {
+        mockedBookRepository = Mockito.mock(BookRepository.class);
         bookService = new BookService(mockedBookRepository);
     }
 
-
-    //CREATE RELATED TESTS
     @Test
-    public void givenEmptyTitle_WhenAddingBook_ThenThrowInvalidStringException() {
+    public void givenEmptyTitle_WhenAddingBook_ThenThrowInvalidBookException() {
         //Given
         String title = "";
         String publicationDateString = "2000-01-01";
@@ -40,11 +41,11 @@ public class BookServiceTest {
         //When
 
         //Then
-        assertThrows(InvalidStringException.class, () -> bookService.addBook(title, publicationDateString, isbn, price));
+        assertThrows(InvalidBookException.class, () -> bookService.addBook(title, publicationDateString, isbn, price));
     }
 
     @Test
-    public void givenNullTitle_WhenAddingBook_ThenThrowInvalidStringException() {
+    public void givenNullTitle_WhenAddingBook_ThenThrowInvalidBookException() {
         //Given
         String title = null;
         String publicationDateString = "2000-01-01";
@@ -54,11 +55,11 @@ public class BookServiceTest {
         //When
 
         //Then
-        assertThrows(InvalidStringException.class, () -> bookService.addBook(title, publicationDateString, isbn, price));
+        assertThrows(InvalidBookException.class, () -> bookService.addBook(title, publicationDateString, isbn, price));
     }
 
     @Test
-    public void givenEmptyIsbn_WhenAddingBook_ThenThrowInvalidStringException() {
+    public void givenEmptyIsbn_WhenAddingBook_ThenThrowInvalidBookException() {
         //Given
         String title = "test";
         String publicationDateString = "2000-01-01";
@@ -68,11 +69,11 @@ public class BookServiceTest {
         //When
 
         //Then
-        assertThrows(InvalidStringException.class, () -> bookService.addBook(title, publicationDateString, isbn, price));
+        assertThrows(InvalidBookException.class, () -> bookService.addBook(title, publicationDateString, isbn, price));
     }
 
     @Test
-    public void givenNullIsbn_WhenAddingBook_ThenThrowInvalidStringException() {
+    public void givenNullIsbn_WhenAddingBook_ThenThrowInvalidBookException() {
         //Given
         String title = "test";
         String publicationDateString = "2000-01-01";
@@ -82,11 +83,11 @@ public class BookServiceTest {
         //When
 
         //Then
-        assertThrows(InvalidStringException.class, () -> bookService.addBook(title, publicationDateString, isbn, price));
+        assertThrows(InvalidBookException.class, () -> bookService.addBook(title, publicationDateString, isbn, price));
     }
 
     @Test
-    public void givenEmptyStringPublicationDate_WhenAddingBook_ThenThrowInvalidDateException() {
+    public void givenEmptyStringPublicationDate_WhenAddingBook_ThenThrowInvalidBookException() {
         //Given
         String title = "test";
         String publicationDateString = "";
@@ -96,11 +97,11 @@ public class BookServiceTest {
         //When
 
         //Then
-        assertThrows(InvalidDateException.class, () -> bookService.addBook(title, publicationDateString, isbn, price));
+        assertThrows(InvalidBookException.class, () -> bookService.addBook(title, publicationDateString, isbn, price));
     }
 
     @Test
-    public void givenNullStringPublicationDate_WhenAddingBook_ThenThrowInvalidDateException() {
+    public void givenNullStringPublicationDate_WhenAddingBook_ThenThrowInvalidBookException() {
         //Given
         String title = "test";
         String publicationDateString = null;
@@ -110,11 +111,11 @@ public class BookServiceTest {
         //When
 
         //Then
-        assertThrows(InvalidDateException.class, () -> bookService.addBook(title, publicationDateString, isbn, price));
+        assertThrows(InvalidBookException.class, () -> bookService.addBook(title, publicationDateString, isbn, price));
     }
 
     @Test
-    public void givenInvalidStringPublicationDate_WhenAddingBook_ThenThrowInvalidDateException() {
+    public void givenInvalidStringPublicationDate_WhenAddingBook_ThenThrowInvalidBookException() {
         //Given
         String title = "test";
         String publicationDateString = "iskam narga";
@@ -124,11 +125,11 @@ public class BookServiceTest {
         //When
 
         //Then
-        assertThrows(InvalidDateException.class, () -> bookService.addBook(title, publicationDateString, isbn, price));
+        assertThrows(InvalidBookException.class, () -> bookService.addBook(title, publicationDateString, isbn, price));
     }
 
     @Test
-    public void givenNegativePrice_WhenAddingBook_ThenThrowNegativeNumberException() {
+    public void givenNegativePrice_WhenAddingBook_ThenThrowInvalidBookException() {
         //Given
         String title = "test";
         String publicationDateString = "2000-01-01";
@@ -138,19 +139,18 @@ public class BookServiceTest {
         //When
 
         //Then
-        assertThrows(NegativeNumberException.class, () -> bookService.addBook(title, publicationDateString, isbn, price));
+        assertThrows(InvalidBookException.class, () -> bookService.addBook(title, publicationDateString, isbn, price));
     }
 
-    //DELETE RELATED TESTS
     @Test
-    public void givenNegativeIndex_WhenDeletingBook_ThenThrowNegativeIdException() {
+    public void givenNegativeIndex_WhenDeletingBook_ThenThrowEntityNotFoundException() {
         //Given
         long bookId = -1;
 
         //When
 
         //Then
-        assertThrows(NegativeIdException.class, () -> bookService.deleteBookById(bookId));
+        assertThrows(EntityNotFoundException.class, () -> bookService.deleteBookById(bookId));
     }
 
     @Test
@@ -164,67 +164,81 @@ public class BookServiceTest {
         assertThrows(EntityNotFoundException.class, () -> bookService.deleteBookById(bookId));
     }
 
-    //UPDATE RELATED TESTS
     @Test
-    public void givenNegativeIndex_WhenUpdatingBook_ThenThrowNegativeIdException() {
+    public void givenNegativeIndex_WhenUpdatingBook_ThenThrowEntityNotFoundException() {
         //Given
+        String title = "test";
+        String publicationDateString = "2000-01-01";
+        String isbn = "TEST";
+        double price = 10.0;
         long bookId = -1;
 
         //When
 
         //Then
-        assertThrows(NegativeIdException.class, () -> bookService.deleteBookById(bookId));
+        assertThrows(EntityNotFoundException.class,
+                () -> bookService.updateBookById(bookId, title, publicationDateString, isbn, Optional.of(price)));
     }
 
     @Test
-    public void givenIndexThatDoesNotExist_WhenUpdatingBook_ThenThrowNegativeIdException() {
+    public void givenIndexThatDoesNotExist_WhenUpdatingBook_ThenThrowEntityNotFoundException() {
         //Given
+        String title = "test";
+        String publicationDateString = "2000-01-01";
+        String isbn = "TEST";
+        double price = 10.0;
         long bookId = 9999;
 
         //When
 
         //Then
-        assertThrows(EntityNotFoundException.class, () -> bookService.deleteBookById(bookId));
+        assertThrows(EntityNotFoundException.class,
+                () -> bookService.updateBookById(bookId, title, publicationDateString, isbn, Optional.of(price)));
     }
 
     @Test
-    public void givenInvalidStringPublicationDate_WhenUpdatingBook_ThenInvalidDateException() {
+    public void givenInvalidStringPublicationDate_WhenUpdatingBook_ThenInvalidBookException() {
         //Given
         String title = "test";
         String publicationDateString = "F.O.O.L. - Criminal";
         String isbn = "TEST";
         double price = 10.0;
+        long bookId = 1;
 
         //When
+        Mockito.when(mockedBookRepository.findById((long) 1)).thenReturn(Optional.of(new Book()));
 
         //Then
-        assertThrows(InvalidDateException.class, () -> bookService.addBook(title, publicationDateString, isbn, price));
+        assertThrows(InvalidBookException.class,
+                () -> bookService.updateBookById(bookId, title, publicationDateString, isbn, Optional.of(price)));
     }
 
     @Test
-    public void givenNegativePrice_WhenUpdatingBook_ThenNegativeNumberException() {
+    public void givenNegativePrice_WhenUpdatingBook_ThenThrowInvalidBookException() {
         //Given
         String title = "test";
         String publicationDateString = "2000-01-01";
         String isbn = "TEST";
         double price = -10.0;
+        long bookId = 1;
 
         //When
+        Mockito.when(mockedBookRepository.findById((long) 1)).thenReturn(Optional.of(new Book()));
 
         //Then
-        assertThrows(NegativeNumberException.class, () -> bookService.addBook(title, publicationDateString, isbn, price));
+        assertThrows(InvalidBookException.class,
+                () -> bookService.updateBookById(bookId, title, publicationDateString, isbn, Optional.of(price)));
     }
 
-    //READ RELATED TESTS
     @Test
-    public void givenNegativeIndex_WhenGettingABook_ThenThrowNegativeIdException() {
+    public void givenNegativeIndex_WhenGettingABook_ThenThrowEntityNotFoundException() {
         //Given
         long bookId = -1;
 
         //When
 
         //Then
-        assertThrows(NegativeIdException.class, () -> bookService.deleteBookById(bookId));
+        assertThrows(EntityNotFoundException.class, () -> bookService.getBookById(bookId));
     }
 
     @Test
@@ -254,9 +268,9 @@ public class BookServiceTest {
     public void givenRepositoryWithBooks_WhenGettingAllBooks_ThenGetListOfBooks() {
         //Given
         List<Book> bookList = new ArrayList<>();
-        Book book1 = new Book("kniga", LocalDate.parse("2000-01-01"), "KNG", 10.0);
-        Book book2 = new Book("book", LocalDate.parse("2000-02-02"), "BK", 15.59);
-        Book book3 = new Book("KKNNIGGGA", LocalDate.parse("2000-03-03"), "KKNNGGG", 20.99);
+        Book book1 = new Book("kniga", "2000-01-01", "KNG", 10.0);
+        Book book2 = new Book("book", "2000-02-02", "BK", 15.59);
+        Book book3 = new Book("KKNNIGGGA", "2000-03-03", "KKNNGGG", 20.99);
         bookList.add(book1);
         bookList.add(book2);
         bookList.add(book3);

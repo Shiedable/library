@@ -11,22 +11,21 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler({
-            InvalidDateException.class,
-            InvalidStringException.class,
-            NegativeIdException.class,
-            NegativeNumberException.class,
+            InvalidAuthorException.class,
+            InvalidBookException.class,
+            InvalidSaleException.class
     })
-    public ResponseEntity<String> badRequestHandler(RuntimeException exception) {
+    public ResponseEntity<String> invalidEntityHandler(RuntimeException exception) {
         return responseGenerator(exception, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<String> badRequestHandler(MissingServletRequestParameterException exception) {
+    public ResponseEntity<String> missingParameterHandler(MissingServletRequestParameterException exception) {
         return new ResponseEntity<>(exception.getParameterName() + " cannot be null/empty", HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<String> notFoundHandler(RuntimeException exception) {
+    public ResponseEntity<String> entityNotFoundHandler(RuntimeException exception) {
         return responseGenerator(exception, HttpStatus.NOT_FOUND);
     }
 

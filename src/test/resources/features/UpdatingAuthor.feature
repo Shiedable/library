@@ -15,17 +15,17 @@ Feature: Updating the information saved for a certain Author
     When Attempting to update the information for Author 1
     Then The Author should have been updated
 
-  Scenario: Updating an author that does not exist
-    Given Empty Author database
-    When Attempting to update the information for Author 99
-    Then We should be getting an error message
+  Scenario Outline: Updating an author that does not exist
+    Given The database has an Author
+    When Attempting to update the information for Author <id>
+    Then We should be getting a response with code 404 NOT_FOUND and Entity with such ID does not exist error message
 
-  Scenario: Updating information for an Author using negative id
-    Given The Author database is empty
-    When Attempting to update the information for Author -1
-    Then We should be getting an error message
+    Examples:
+    | id |
+    | 99 |
+    | -1 |
 
   Scenario: Author is not updated successfully in the database
     Given Invalid birthdate format
     When Attempting to update the information for Author 1
-    Then We should be getting an error message
+    Then We should be getting a response with code 400 BAD_REQUEST and Could not parse Birth date: 20-12-2000 reason: Text '20-12-2000' could not be parsed at index 0 error message

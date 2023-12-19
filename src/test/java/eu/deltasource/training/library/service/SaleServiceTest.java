@@ -1,10 +1,12 @@
 package eu.deltasource.training.library.service;
 
 import eu.deltasource.training.library.exceptions.*;
+import eu.deltasource.training.library.model.Book;
 import eu.deltasource.training.library.model.Sale;
-import eu.deltasource.training.library.repository.SalesRepository;
+import eu.deltasource.training.library.repository.SaleRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mockito;
 
 import java.time.LocalDate;
@@ -16,77 +18,85 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class SaleServiceTest {
 
-    private static SaleService saleService;
-    private static SalesRepository mockedSaleRepository;
+    private SaleService saleService;
+    private SaleRepository mockedSaleRepository;
+    private BookService mockedBookService;
 
     @BeforeAll
-    public static void initialize() {
-        mockedSaleRepository = Mockito.mock(SalesRepository.class);
-        saleService = new SaleService(mockedSaleRepository);
+    public void initialize() {
+        mockedSaleRepository = Mockito.mock(SaleRepository.class);
+        mockedBookService = Mockito.mock(BookService.class);
+        saleService = new SaleService(mockedSaleRepository, mockedBookService);
     }
 
 
-    //CREATE RELATED TESTS
     @Test
-    public void givenEmptyStringSaleDate_WhenAddingSale_ThenThrowInvalidDateException() {
+    public void givenEmptyStringSaleDate_WhenAddingSale_ThenThrowInvalidSaleException() {
         //Given
         String saleDateString = "";
         Optional<Integer> quantity = Optional.of(10);
+        long bookId = 1;
 
         //When
 
         //Then
-        assertThrows(InvalidDateException.class, () -> saleService.addSale(saleDateString, quantity, null));
+        assertThrows(InvalidSaleException.class, () -> saleService.addSale(saleDateString, quantity, bookId));
     }
 
     @Test
-    public void givenNullStringSaleDate_WhenAddingSale_ThenThrowInvalidDateException() {
+    public void givenNullStringSaleDate_WhenAddingSale_ThenThrowInvalidSaleException() {
         //Given
         String saleDateString = null;
         Optional<Integer> quantity = Optional.of(10);
+        long bookId = 1;
 
         //When
+        Mockito.when(mockedBookService.getBookById(bookId)).thenReturn(Optional.of(new Book()));
 
         //Then
-        assertThrows(InvalidDateException.class, () -> saleService.addSale(saleDateString, quantity, null));
+        assertThrows(InvalidSaleException.class, () -> saleService.addSale(saleDateString, quantity, bookId));
     }
 
     @Test
-    public void givenInvalidStringSaleDate_WhenAddingSale_ThenThrowInvalidDateException() {
+    public void givenInvalidStringSaleDate_WhenAddingSale_ThenThrowInvalidSaleException() {
         //Given
         String saleDateString = "ima li prodajbi";
         Optional<Integer> quantity = Optional.of(10);
+        long bookId = 1;
 
         //When
+        Mockito.when(mockedBookService.getBookById(bookId)).thenReturn(Optional.of(new Book()));
 
         //Then
-        assertThrows(InvalidDateException.class, () -> saleService.addSale(saleDateString, quantity, null));
+        assertThrows(InvalidSaleException.class, () -> saleService.addSale(saleDateString, quantity, bookId));
     }
 
     @Test
-    public void givenNegativeQuantity_WhenAddingSale_ThenThrowNegativeNumberException() {
+    public void givenNegativeQuantity_WhenAddingSale_ThenThrowInvalidSaleException() {
         //Given
         String saleDateString = "2000-01-01";
         Optional<Integer> quantity = Optional.of(-10);
+        long bookId = 1;
 
         //When
+        Mockito.when(mockedBookService.getBookById(bookId)).thenReturn(Optional.of(new Book()));
 
         //Then
-        assertThrows(NegativeNumberException.class, () -> saleService.addSale(saleDateString, quantity, null));
+        assertThrows(InvalidSaleException.class, () -> saleService.addSale(saleDateString, quantity, bookId));
     }
 
-    //DELETE RELATED TESTS
     @Test
-    public void givenNegativeIndex_WhenDeletingSale_ThenThrowNegativeIdException() {
+    public void givenNegativeIndex_WhenDeletingSale_ThenThrowEntityNotFoundException() {
         //Given
         long saleId = -1;
 
         //When
 
         //Then
-        assertThrows(NegativeIdException.class, () -> saleService.deleteSaleById(saleId));
+        assertThrows(EntityNotFoundException.class, () -> saleService.deleteSaleById(saleId));
     }
 
     @Test
@@ -100,22 +110,71 @@ public class SaleServiceTest {
         assertThrows(EntityNotFoundException.class, () -> saleService.deleteSaleById(saleId));
     }
 
-    //UPDATE RELATED TESTS
     @Test
-    public void givenNegativeIndex_WhenUpdatingSale_ThenThrowNegativeIdException() {
+    public void givenNegativeIndex_WhenUpdatingSale_ThenThrowEntityNotFoundException() {
         //Given
+        String saleDateString = "2000-01-01";
+        Optional<Integer> quantity = Optional.of(10);
         long saleId = -1;
+        long bookId = 1;
 
         //When
 
         //Then
-        assertThrows(NegativeIdException.class, () -> saleService.deleteSaleById(saleId));
+        assertThrows(EntityNotFoundException.class,
+                () -> saleService.updateSaleById(saleId, saleDateString, quantity, bookId));
     }
 
     @Test
-    public void givenIndexThatDoesNotExist_WhenUpdatingSale_ThenThrowNegativeIdException() {
+    public void givenIndexThatDoesNotExist_WhenUpdatingSale_ThenThrowEntityNotFoundException() {
         //Given
+        String saleDateString = "2000-01-01";
+        Optional<Integer> quantity = Optional.of(10);
         long saleId = 9999;
+        long bookId = 1;
+
+        //When
+
+        //Then
+        assertThrows(EntityNotFoundException.class,
+                () -> saleService.updateSaleById(saleId, saleDateString, quantity, bookId));
+    }
+
+    @Test
+    public void givenInvalidStringSaleDate_WhenUpdatingSale_ThenThrowEntityNotFoundException() {
+        //Given
+        String saleDateString = "go6o mi e";
+        Optional<Integer> quantity = Optional.of(10);
+        long saleId = 1;
+        long bookId = 1;
+
+        //When
+
+        //Then
+        assertThrows(EntityNotFoundException.class,
+                () -> saleService.updateSaleById(saleId, saleDateString, quantity, bookId));
+    }
+
+    @Test
+    public void givenNegativeQuantity_WhenUpdatingSale_ThenThrowInvalidSaleException() {
+        //Given
+        String saleDateString = "2000-01-01";
+        Optional<Integer> quantity = Optional.of(-10);
+        long saleId = 1;
+        long bookId = 1;
+
+        //When
+        Mockito.when(mockedSaleRepository.findById(bookId)).thenReturn(Optional.of(new Sale()));
+
+        //Then
+        assertThrows(InvalidSaleException.class,
+                () -> saleService.updateSaleById(saleId, saleDateString, quantity, bookId));
+    }
+
+    @Test
+    public void givenNegativeIndex_WhenGettingASale_ThenThrowEntityNotFoundException() {
+        //Given
+        long saleId = -1;
 
         //When
 
@@ -124,43 +183,7 @@ public class SaleServiceTest {
     }
 
     @Test
-    public void givenInvalidStringSaleDate_WhenUpdatingSale_ThenInvalidDateException() {
-        //Given
-        String saleDateString = "go6o mi e";
-        Optional<Integer> quantity = Optional.of(10);
-
-        //When
-
-        //Then
-        assertThrows(InvalidDateException.class, () -> saleService.addSale(saleDateString, quantity, null));
-    }
-
-    @Test
-    public void givenNegativeQuantity_WhenUpdatingSale_ThenNegativeNumberException() {
-        //Given
-        String saleDateString = "2000-01-01";
-        Optional<Integer> quantity = Optional.of(-10);
-
-        //When
-
-        //Then
-        assertThrows(NegativeNumberException.class, () -> saleService.addSale(saleDateString, quantity, null));
-    }
-
-    //READ RELATED TESTS
-    @Test
-    public void givenNegativeIndex_WhenGettingASale_ThenThrowNegativeIdException() {
-        //Given
-        long saleId = -1;
-
-        //When
-
-        //Then
-        assertThrows(NegativeIdException.class, () -> saleService.deleteSaleById(saleId));
-    }
-
-    @Test
-    public void givenNonExistentIndex_WhenGettingASale_ThenThrowIdNotFoundException() {
+    public void givenNonExistentIndex_WhenGettingASale_ThenThrowEntityNotFoundException() {
         //Given
         long saleId = 9999;
 
@@ -186,9 +209,10 @@ public class SaleServiceTest {
     public void givenRepositoryWithSales_WhenGettingAllSales_ThenGetListOfSales() {
         //Given
         List<Sale> saleList = new ArrayList<>();
-        Sale sale1 = new Sale(LocalDate.parse("2000-01-01"), 10, null);
-        Sale sale2 = new Sale(LocalDate.parse("2000-02-02"), 100, null);
-        Sale sale3 = new Sale(LocalDate.parse("2000-03-03"), 1000, null);
+        Book book =  new Book();
+        Sale sale1 = new Sale("2000-01-01", 10, book);
+        Sale sale2 = new Sale("2000-02-02", 100, book);
+        Sale sale3 = new Sale("2000-03-03", 1000, book);
         saleList.add(sale1);
         saleList.add(sale2);
         saleList.add(sale3);

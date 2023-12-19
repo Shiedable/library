@@ -5,12 +5,12 @@ Feature: Deleting a Book from the database
     When Attempting to delete Book 1
     Then The database should not have that Book
 
-  Scenario: Attempting to delete a Book which does not exist
-    Given The database has no Books
-    When Attempting to delete Book 99
-    Then Then an error should occur with response
+  Scenario Outline: Attempting to delete a Book which does not exist
+    Given The database has a Book
+    When Attempting to delete Book <id>
+    Then We should be getting a response with code 404 NOT_FOUND and Entity with such ID does not exist error message
 
-  Scenario: Attempting to delete a Book using negative Id
-    Given Negative id for a Book
-    When Attempting to delete Book -1
-    Then Then an error should occur with response
+    Examples:
+    | id |
+    | 99 |
+    | -1 |

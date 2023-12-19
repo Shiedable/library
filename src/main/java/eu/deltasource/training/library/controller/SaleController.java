@@ -2,7 +2,6 @@ package eu.deltasource.training.library.controller;
 
 import eu.deltasource.training.library.model.Sale;
 import eu.deltasource.training.library.service.SaleService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,14 +13,13 @@ import java.util.Optional;
 @Controller
 public class SaleController {
 
-    private SaleService saleService;
+    private final SaleService saleService;
 
-    @Autowired
     public SaleController(SaleService saleService){
         this.saleService = saleService;
     }
 
-    @PostMapping("/sale/add")
+    @PostMapping("/sale")
     public ResponseEntity<String> addSale(@RequestParam String saleDate,
                                           @RequestParam Optional<Integer> quantity,
                                           @RequestParam Long bookId) {
@@ -29,13 +27,13 @@ public class SaleController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/sale/delete/{id}")
+    @DeleteMapping("/sale/{id}")
     public ResponseEntity<String> deleteSaleById(@PathVariable long id) {
         saleService.deleteSaleById(id);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/sale/update/{id}")
+    @PutMapping("/sale/{id}")
     public ResponseEntity<String> updateSaleById(@PathVariable long id,
                                  @RequestParam(required = false) String saleDate,
                                  @RequestParam(required = false) Optional<Integer> quantity,
@@ -44,13 +42,13 @@ public class SaleController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/sale/get/{id}")
+    @GetMapping("/sale/{id}")
     public ResponseEntity<String> getSaleById(@PathVariable long id) {
         Sale sale = saleService.getSaleById(id).get();
         return new ResponseEntity<>(sale.toString(), HttpStatus.OK);
     }
 
-    @GetMapping("/sale/get/all")
+    @GetMapping("/sale/get")
     public ResponseEntity<String> getAllSales() {
         return new ResponseEntity<>(saleService.getAllSales().toString(), HttpStatus.OK);
     }
