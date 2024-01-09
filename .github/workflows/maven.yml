@@ -11,32 +11,50 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checking out code
-        uses: actions/checkout@v3
+    - uses: actions/checkout@v2
+    - name: Setting up java
+    - uses: actions/setup-java@v2
+      with:
+        java-version: 17
+        distribution: 'openjdk'
+
+    - name: Setting up Maven
+    - uses: actions/setup-maven@v2
+      with:
+        maven-version: 3.9.4
       
-      - name: Setting up java
-        uses: actions/setup-java@v3
-        with:
-          java-version: 17
-          distribution: 'temurin'
-          cache: maven
+  build:
 
-      - name: Login to GitHub Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build project
+      run: mvn clean compile
 
-      - name: Build and Push Docker Image
-        run: | 
-          docker build -t "ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:library" .
-          docker push "ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:library"
+  test:
 
-      - name: Build project
-        run: mvn clean compile
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run unit tests on project
+      run: mvn test 
+      
+  verify:
 
-      - name: Run unit tests on project
-        run: mvn test
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run integration tests on project
+      run: mvn verify
+      
+  run:
 
-      - name: Run integration tests on project
-        run: mvn verify
-
-      - name: Run project
-        run: mvn spring-boot:run
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run project
+      run: mvn spring-boot:run
