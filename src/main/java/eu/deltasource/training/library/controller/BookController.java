@@ -2,7 +2,6 @@ package eu.deltasource.training.library.controller;
 
 import eu.deltasource.training.library.model.Book;
 import eu.deltasource.training.library.service.BookService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,6 +13,7 @@ import java.util.Optional;
 public class BookController {
 
     private final BookService bookService;
+
 
     public BookController(BookService bookService) {
         this.bookService = bookService;
@@ -53,5 +53,10 @@ public class BookController {
     @GetMapping("/book/get")
     public ResponseEntity<String> getAllBooks() {
         return new ResponseEntity<String>(bookService.getAllBooks().toString(), HttpStatus.OK);
+    }
+
+    @PostMapping("/bookByIsbn")
+    public ResponseEntity<String> addBookByIsbn(@RequestParam String isbn) {
+        return bookService.addBookByIsbn(isbn);
     }
 }

@@ -7,7 +7,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @CucumberContextConfiguration
-@ContextConfiguration(classes = LibraryApplication.class)
+@ContextConfiguration(classes = {LibraryApplication.class, CucumberTestConfiguration.class})
 @ActiveProfiles("test")
 public class CucumberConfiguration {
 }
