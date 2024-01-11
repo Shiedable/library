@@ -1,5 +1,12 @@
 version: "3"
 services:
+  adapter:
+    image: library-adapter:1.0
+    ports:
+      - "8081:8081"
+    networks:
+      - library
+
   application:
     image: library:1.0
     ports:
@@ -9,6 +16,7 @@ services:
     networks:
       - library
     depends_on:
+      - adapter
       - dbcontainer
 
   dbcontainer:
