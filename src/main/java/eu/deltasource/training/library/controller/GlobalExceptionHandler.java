@@ -27,9 +27,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpClientErrorException.class)
     public ResponseEntity<String> adapterExceptionHandler(HttpClientErrorException exception) {
-        int beginIndex = exception.getMessage().indexOf("\"") + 1;
-        int endIndex = exception.getMessage().length() - 1;
-        return new ResponseEntity<>(exception.getMessage().substring(beginIndex, endIndex), HttpStatus.UNPROCESSABLE_ENTITY);
+        String responseBody = extractClientErrorMessageFromException(exception);
+        return new ResponseEntity<>(responseBody, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
@@ -39,5 +38,11 @@ public class GlobalExceptionHandler {
 
     private ResponseEntity<String> responseGenerator(Exception exception, HttpStatus status) {
         return new ResponseEntity<>(exception.getMessage(), status);
+    }
+
+    private String extractClientErrorMessageFromException (HttpClientErrorException exception) {
+        int beginIndex = exception.getMessage().indexOf("\"") + 1;
+        int endIndex = exception.getMessage().length() - 1;
+        return exception.getMessage().substring(beginIndex, endIndex);
     }
 }

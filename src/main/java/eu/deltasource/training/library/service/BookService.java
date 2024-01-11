@@ -6,7 +6,6 @@ import eu.deltasource.training.library.exceptions.InvalidBookException;
 import eu.deltasource.training.library.model.Book;
 import eu.deltasource.training.library.repository.BookRepository;
 import net.minidev.json.JSONArray;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -18,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import static org.springframework.util.StringUtils.capitalize;
 import static org.springframework.util.StringUtils.hasLength;
 
 /**
@@ -30,9 +28,9 @@ public class BookService {
     private BookRepository bookRepository;
     private AuthorService authorService;
     private RestTemplate restTemplate;
-    @Value("${author.url}")
+    @Value("${author.api.url}")
     private String authorApiUrl;
-    @Value("${book.url}")
+    @Value("${book.api.url}")
     private String bookApiUrl;
 
     public BookService(BookRepository bookRepository, AuthorService authorService, RestTemplate restTemplate) {
@@ -95,17 +93,20 @@ public class BookService {
     private ResponseEntity<String> addBookAuthors(String response) {
         JSONArray authorsJsonArray = JsonPath.parse(response).read("$.authors[*]");
         for (int i = 0; i < authorsJsonArray.size(); i++) {
-            String[] fullName = authorsJsonArray.get(i).toString().split(" ");
-            String firstName = fullName[0];
-            String lastName = fullName[1];
-            String url = authorApiUrl + "firstName=" + firstName + "&lastName=" + lastName;
-            ResponseEntity<String> birthdate = restTemplate.
-                    exchange(url, HttpMethod.GET, null, String.class);
-            authorService.addAuthor(firstName, lastName, birthdate.getBody());
+            saveAuthorDataFromApi(authorsJsonArray, i);
         }
         return new ResponseEntity<>(authorService.getAllAuthors().toString(), HttpStatus.OK);
     }
 
+    private void saveAuthorDataFromApi(JSONArray authorsJsonArray, int index) {
+        String[] fullName = authorsJsonArray.get(index).toString().split(" ");
+        String firstName = fullName[0];
+        String lastName = fullName[1];
+        String url = authorApiUrl + "firstName=" + firstName + "&lastName=" + lastName;
+        ResponseEntity<String> birthdate = restTemplate.
+                exchange(url, HttpMethod.GET, null, String.class);
+        authorService.addAuthor(firstName, lastName, birthdate.getBody());
+    }
     private void setIfPresent(String value, Consumer<String> consumer) {
         if (hasLength(value)) {
             consumer.accept(value);
@@ -116,7 +117,7 @@ public class BookService {
         value.ifPresent(consumer);
     }
 
-    private Book setBook(String isbn, String body) {
+    private Book createBook(String isbn, String body) {
         Book book = new Book();
         book.setIsbn(isbn);
         book.setTitle(JsonPath.parse(body).read("$.title"));
