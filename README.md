@@ -1,6 +1,6 @@
 # Library application
 
-### This is a simple library implementation. It provides CRUD operations on books and their sales/authors. The application uses spring boot, mysql database and maven.
+ This is a simple library implementation. It provides CRUD operations on books and their sales/authors. The application uses spring boot, mysql database and maven.
 
 ## Running with docker:
 To run the application we first need to build our docker image:

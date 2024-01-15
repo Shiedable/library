@@ -84,7 +84,7 @@ public class BookService {
         if (bookResponse.getStatusCode().is4xxClientError()) {
             return bookResponse;
         }
-        Book book = setBook(isbn, bookResponse.getBody());
+        Book book = createBook(isbn, bookResponse.getBody());
         bookRepository.save(book);
         ResponseEntity<String> authorResponse = addBookAuthors(bookResponse.getBody());
         return new ResponseEntity<>(book + " " + authorResponse.getBody(), HttpStatus.OK);

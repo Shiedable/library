@@ -7,7 +7,7 @@ Feature: Getting Book information from public API
     And Get Expected Author Data - author name, 2000-02-02
 
   Scenario: Book data is not available
-    Given Book ISBN TESTISBN123
+    Given Book isbn TESTISBN123
     When Getting Book data from API
     Then We should be getting a response with code 404 NOT_FOUND and No book was found with isbn: TESTISBN123 error message
 
