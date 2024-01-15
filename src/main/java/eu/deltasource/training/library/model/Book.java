@@ -1,8 +1,8 @@
 package eu.deltasource.training.library.model;
 
-import eu.deltasource.training.library.exceptions.InvalidAuthorException;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import eu.deltasource.training.library.exceptions.InvalidBookException;
-import eu.deltasource.training.library.exceptions.InvalidSaleException;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -16,18 +16,23 @@ import static org.springframework.util.StringUtils.hasLength;
  */
 @Entity
 @Table(name="books")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Book {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "book_id", nullable = false)
     private long bookId;
+    @JsonProperty
     @Column(name = "title", nullable = false)
     private String title;
+    @JsonProperty
     @Column(name = "publication_date", nullable = false)
     private LocalDate publicationDate;
+    @JsonProperty
     @Column(name = "ISBN", nullable = false)
     private String isbn;
+    @JsonProperty
     @Column(name = "price", nullable = false)
     private double price;
 
@@ -76,7 +81,7 @@ public class Book {
     }
 
     public void setPrice(double price) {
-        if (price > 0.0) {
+        if (price >= 0.0) {
             this.price = price;
         } else {
             throw new InvalidBookException("Book price cannot be negative");

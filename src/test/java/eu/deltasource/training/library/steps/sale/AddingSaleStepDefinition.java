@@ -1,4 +1,4 @@
-package eu.deltasource.training.library.steps.sales;
+package eu.deltasource.training.library.steps.sale;
 
 import eu.deltasource.training.library.DatabaseResetter;
 import eu.deltasource.training.library.model.Book;

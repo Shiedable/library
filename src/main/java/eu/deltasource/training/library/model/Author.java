@@ -1,7 +1,6 @@
 package eu.deltasource.training.library.model;
 
 import eu.deltasource.training.library.exceptions.InvalidAuthorException;
-import eu.deltasource.training.library.exceptions.InvalidSaleException;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;

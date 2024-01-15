@@ -2,11 +2,13 @@ package eu.deltasource.training.library.service;
 
 import eu.deltasource.training.library.exceptions.*;
 import eu.deltasource.training.library.model.Book;
+import eu.deltasource.training.library.repository.AuthorRepository;
 import eu.deltasource.training.library.repository.BookRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mockito;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -27,7 +29,7 @@ public class BookServiceTest {
     @BeforeAll
     public void initialize() {
         mockedBookRepository = Mockito.mock(BookRepository.class);
-        bookService = new BookService(mockedBookRepository);
+        bookService = new BookService(mockedBookRepository, Mockito.mock(AuthorService.class), new RestTemplate());
     }
 
     @Test
