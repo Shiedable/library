@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -50,8 +51,8 @@ public class BookController {
     }
 
     @GetMapping("/book/get")
-    public ResponseEntity<String> getAllBooks() {
-        return new ResponseEntity<String>(bookService.getAllBooks().toString(), HttpStatus.OK);
+    public ResponseEntity<List<Book>> getAllBooks() {
+        return new ResponseEntity<List<Book>>(bookService.getAllBooks(), HttpStatus.OK);
     }
 
     @PostMapping("/bookByIsbn")

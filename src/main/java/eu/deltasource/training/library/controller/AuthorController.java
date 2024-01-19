@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * Controller that has endpoints for managing {@link Author}
  */
@@ -43,13 +45,13 @@ public class AuthorController {
     }
 
     @GetMapping("/author/{id}")
-    public ResponseEntity<String> getAuthorById(@PathVariable long id) {
+    public ResponseEntity<Author> getAuthorById(@PathVariable long id) {
         Author author = authorService.getAuthorById(id).get();
-        return new ResponseEntity<String>(author.toString(), HttpStatus.OK);
+        return new ResponseEntity<Author>(author, HttpStatus.OK);
     }
 
     @GetMapping("/author/get")
-    public ResponseEntity<String> getAllAuthors() {
-        return new ResponseEntity<>(authorService.getAllAuthors().toString(), HttpStatus.OK);
+    public ResponseEntity<List<Author>> getAllAuthors() {
+        return new ResponseEntity<>(authorService.getAllAuthors(), HttpStatus.OK);
     }
 }
