@@ -1,5 +1,6 @@
 package eu.deltasource.training.library.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.deltasource.training.library.exceptions.InvalidAuthorException;
 import jakarta.persistence.*;
 
@@ -28,6 +29,7 @@ public class Author {
     private LocalDate birthDate;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(
             name = "author_book",
             joinColumns = @JoinColumn(name = "author_id"),

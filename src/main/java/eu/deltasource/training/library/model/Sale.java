@@ -1,5 +1,6 @@
 package eu.deltasource.training.library.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.deltasource.training.library.exceptions.InvalidSaleException;
 import jakarta.persistence.*;
 
@@ -24,6 +25,7 @@ public class Sale {
     @Column(name = "quantity", nullable = false)
     private int quantity;
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "book_id")
     private Book book;
 

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -43,13 +44,13 @@ public class SaleController {
     }
 
     @GetMapping("/sale/{id}")
-    public ResponseEntity<String> getSaleById(@PathVariable long id) {
+    public ResponseEntity<Sale> getSaleById(@PathVariable long id) {
         Sale sale = saleService.getSaleById(id).get();
-        return new ResponseEntity<>(sale.toString(), HttpStatus.OK);
+        return new ResponseEntity<>(sale, HttpStatus.OK);
     }
 
     @GetMapping("/sale/get")
-    public ResponseEntity<String> getAllSales() {
-        return new ResponseEntity<>(saleService.getAllSales().toString(), HttpStatus.OK);
+    public ResponseEntity<List<Sale>> getAllSales() {
+        return new ResponseEntity<>(saleService.getAllSales(), HttpStatus.OK);
     }
 }
